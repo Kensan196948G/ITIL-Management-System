@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/app-layout'
 import { ProtectedRoute } from '@/components/auth/protected-route'
+import { DashboardPage } from '@/pages/dashboard'
 import { IncidentListPage } from '@/pages/incidents/list'
 import { CreateIncidentPage } from '@/pages/incidents/create'
 import { IncidentDetailPage } from '@/pages/incidents/detail'
@@ -25,7 +26,7 @@ export function LayoutRoutes() {
     <ProtectedRoute>
       <AppLayout>
         <Routes>
-          <Route path="/" element={<StubPage title="ダッシュボード" />} />
+          <Route path="/" element={<DashboardPage />} />
           <Route path="/incidents" element={<IncidentListPage />} />
           <Route path="/incidents/new" element={<CreateIncidentPage />} />
           <Route path="/incidents/:id" element={<IncidentDetailPage />} />
