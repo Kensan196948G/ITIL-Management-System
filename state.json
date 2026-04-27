@@ -17,7 +17,7 @@
     "security_blocker_target": 0,
     "ci_stability_target": 0.95,
     "tasks_total": 20,
-    "tasks_completed": 10
+    "tasks_completed": 16
   },
   "execution": {
     "max_duration_minutes": 300,
@@ -60,12 +60,12 @@
     "TASK-008": "completed",
     "TASK-009": "completed",
     "TASK-010": "completed",
-    "TASK-011": "pending",
-    "TASK-012": "pending",
-    "TASK-013": "pending",
-    "TASK-014": "pending",
-    "TASK-015": "pending",
-    "TASK-016": "pending",
+    "TASK-011": "completed",
+    "TASK-012": "completed",
+    "TASK-013": "completed",
+    "TASK-014": "completed",
+    "TASK-015": "completed",
+    "TASK-016": "completed",
     "TASK-017": "pending",
     "TASK-018": "pending",
     "TASK-019": "pending",
@@ -83,7 +83,13 @@
       "TASK-007: Audit log API + User management UI + Profile page + admin sidebar menu - 19 new backend tests (total 239)",
       "TASK-008: Frontend component tests expanded from 22 to 85 (63 new tests) - Dashboard, Incidents, ServiceRequests, ChangeRequests, Approvals, AdminUsers, AuditLogs, Profile",
       "TASK-009: Notification system - backend (Notification model+schema+service+API, 11 tests, total 250) + frontend (types, API, hooks, NotificationsPage, Header bell badge, sidebar nav, 13 tests, total 98)",
-      "TASK-010: SLA policy management - backend API CRUD (sla_policies.py, 10 tests, total 260) + frontend (types, API client, hooks, AdminSLAPoliciesPage, sidebar nav, 12 tests, total 110)"
+      "TASK-010: SLA policy management - backend API CRUD (sla_policies.py, 10 tests, total 260) + frontend (types, API client, hooks, AdminSLAPoliciesPage, sidebar nav, 12 tests, total 110)",
+      "TASK-011: Incident search filters + SLA policy enforcement backend (incidents.py enhanced, incident_service.py, 335 backend tests total)",
+      "TASK-012: Problem management backend - model, schema, service, workflow, API router, 2 new test files (test_problems_api, test_problem_workflow)",
+      "TASK-013: ServiceCatalogItem CRUD API + tests (test_service_catalog_api.py, 38 new tests)",
+      "TASK-014: FulfillmentTask CRUD API with auto-completed_at + CAB vote upsert + ChangeSchedule calendar endpoint + Alembic migrations 007/008 (335 total tests passing)",
+      "TASK-015: Service Catalog UI + fulfillment task support - types (FulfillmentTask/ServiceCatalogItem), serviceCatalogApi, fulfillmentTasksApi, useServiceCatalog/useFulfillmentTasks hooks, ServiceCatalogPage with card grid + request modal, detail page fulfillment task section, 10 new tests (120 frontend tests total)",
+      "TASK-016: Problem management frontend - types (problem.ts), API client (problems.ts), hooks (use-problems.ts), ProblemListPage with status/priority/known-error filters + pagination, CreateProblemPage with priority select + optional root_cause/workaround fields, ProblemDetailPage with TransitionPanel + LinkedIncidentsList + StatusHistory, status-badge components, sidebar nav, 34 new tests (154 frontend tests total)"
     ],
     "blocked_patterns": [],
     "preferred_fix_order": [
@@ -105,7 +111,7 @@
     "stable": false,
     "blocked": false,
     "current_phase": "build",
-    "current_task": "TASK-011",
-    "last_updated": "2026-04-27T19:40:00+09:00"
+    "current_task": "TASK-017",
+    "last_updated": "2026-04-27T19:55:00+09:00"
   }
 }
