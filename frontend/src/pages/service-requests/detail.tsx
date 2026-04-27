@@ -6,13 +6,72 @@ import {
   useApproveServiceRequest,
   useRejectServiceRequest,
   useTransitionServiceRequest,
+  useUpdateFulfillmentTask,
 } from '@/hooks/use-service-requests'
 import {
   STATUS_LABELS,
   STATUS_COLORS,
   CATEGORY_LABELS,
+  type FulfillmentTask,
+  type FulfillmentTaskStatus,
   type ServiceRequestStatus,
 } from '@/types/service-request'
+
+const TASK_STATUS_LABELS: Record<FulfillmentTaskStatus, string> = {
+  pending: '未着手',
+  in_progress: '対応中',
+  completed: '完了',
+  skipped: 'スキップ',
+}
+
+const TASK_STATUS_COLORS: Record<FulfillmentTaskStatus, string> = {
+  pending: 'bg-gray-100 text-gray-700',
+  in_progress: 'bg-blue-100 text-blue-700',
+  completed: 'bg-green-100 text-green-700',
+  skipped: 'bg-yellow-100 text-yellow-700',
+}
+
+function FulfillmentTaskRow({
+  task,
+  serviceRequestId,
+}: {
+  task: FulfillmentTask
+  serviceRequestId: string
+}) {
+  const { mutate, isPending } = useUpdateFulfillmentTask(serviceRequestId, task.id)
+
+  const cycleStatus = () => {
+    const next: Record<FulfillmentTaskStatus, FulfillmentTaskStatus> = {
+      pending: 'in_progress',
+      in_progress: 'completed',
+      completed: 'pending',
+      skipped: 'pending',
+    }
+    mutate({ status: next[task.status] })
+  }
+
+  return (
+    <li className="flex items-center gap-3 text-sm py-1.5 border-b last:border-b-0">
+      <span className="text-muted-foreground w-5 text-right shrink-0">{task.order + 1}.</span>
+      <button
+        onClick={cycleStatus}
+        disabled={isPending}
+        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium shrink-0 cursor-pointer hover:opacity-80 ${TASK_STATUS_COLORS[task.status]}`}
+        title="クリックでステータスを変更"
+      >
+        {TASK_STATUS_LABELS[task.status]}
+      </button>
+      <span className={`flex-1 ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
+        {task.title}
+      </span>
+      {task.due_date && (
+        <span className="text-xs text-muted-foreground shrink-0">
+          期限: {new Date(task.due_date).toLocaleDateString('ja-JP')}
+        </span>
+      )}
+    </li>
+  )
+}
 
 function ApprovePanel({ id }: { id: string }) {
   const [comment, setComment] = useState('')
@@ -267,6 +326,27 @@ export function ServiceRequestDetailPage() {
             {canReject && <RejectPanel id={sr.id} />}
           </div>
           <TransitionPanel id={sr.id} allowedTransitions={transitions} />
+        </div>
+      )}
+
+      {/* Fulfillment Tasks */}
+      {sr.fulfillment_tasks && sr.fulfillment_tasks.length > 0 && (
+        <div className="rounded-lg border bg-card p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold">フルフィルメントタスク</h2>
+            <span className="text-xs text-muted-foreground">
+              {sr.fulfillment_tasks.filter((t) => t.status === 'completed').length} /{' '}
+              {sr.fulfillment_tasks.length} 完了
+            </span>
+          </div>
+          <ul>
+            {sr.fulfillment_tasks
+              .slice()
+              .sort((a, b) => a.order - b.order)
+              .map((task) => (
+                <FulfillmentTaskRow key={task.id} task={task} serviceRequestId={sr.id} />
+              ))}
+          </ul>
         </div>
       )}
 

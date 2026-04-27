@@ -2,13 +2,19 @@ import { client } from './client'
 import type { PaginatedResponse } from '@/types'
 import type {
   ApproveServiceRequestRequest,
+  CreateFulfillmentTaskRequest,
+  CreateServiceCatalogItemRequest,
   CreateServiceRequestRequest,
+  FulfillmentTask,
   RejectServiceRequestRequest,
+  ServiceCatalogItem,
   ServiceRequest,
   ServiceRequestCategory,
   ServiceRequestDetail,
   ServiceRequestStatus,
   TransitionServiceRequestRequest,
+  UpdateFulfillmentTaskRequest,
+  UpdateServiceCatalogItemRequest,
   UpdateServiceRequestRequest,
 } from '@/types/service-request'
 
@@ -54,5 +60,40 @@ export const serviceRequestsApi = {
   getAllowedTransitions: (id: string) =>
     client
       .get<ServiceRequestStatus[]>(`/service-requests/${id}/transitions`)
+      .then((r) => r.data),
+}
+
+export const serviceCatalogApi = {
+  list: (params?: { is_active?: boolean }) =>
+    client
+      .get<ServiceCatalogItem[]>('/service-requests/catalog', { params })
+      .then((r) => r.data),
+
+  get: (id: string) =>
+    client.get<ServiceCatalogItem>(`/service-requests/catalog/${id}`).then((r) => r.data),
+
+  create: (data: CreateServiceCatalogItemRequest) =>
+    client.post<ServiceCatalogItem>('/service-requests/catalog', data).then((r) => r.data),
+
+  update: (id: string, data: UpdateServiceCatalogItemRequest) =>
+    client
+      .put<ServiceCatalogItem>(`/service-requests/catalog/${id}`, data)
+      .then((r) => r.data),
+}
+
+export const fulfillmentTasksApi = {
+  list: (serviceRequestId: string) =>
+    client
+      .get<FulfillmentTask[]>(`/service-requests/${serviceRequestId}/tasks`)
+      .then((r) => r.data),
+
+  create: (serviceRequestId: string, data: CreateFulfillmentTaskRequest) =>
+    client
+      .post<FulfillmentTask>(`/service-requests/${serviceRequestId}/tasks`, data)
+      .then((r) => r.data),
+
+  update: (serviceRequestId: string, taskId: string, data: UpdateFulfillmentTaskRequest) =>
+    client
+      .put<FulfillmentTask>(`/service-requests/${serviceRequestId}/tasks/${taskId}`, data)
       .then((r) => r.data),
 }

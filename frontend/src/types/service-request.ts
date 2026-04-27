@@ -14,12 +14,79 @@ export type ServiceRequestCategory =
   | 'user_account'
   | 'other'
 
+export type FulfillmentTaskStatus = 'pending' | 'in_progress' | 'completed' | 'skipped'
+
+export interface FulfillmentTask {
+  id: string
+  service_request_id: string
+  title: string
+  description: string | null
+  status: FulfillmentTaskStatus
+  assignee_id: string | null
+  due_date: string | null
+  completed_at: string | null
+  notes: string | null
+  order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface ServiceCatalogItem {
+  id: string
+  name: string
+  description: string
+  category: ServiceRequestCategory
+  estimated_days: number | null
+  requires_approval: boolean
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateServiceCatalogItemRequest {
+  name: string
+  description: string
+  category?: ServiceRequestCategory
+  estimated_days?: number | null
+  requires_approval?: boolean
+  is_active?: boolean
+}
+
+export interface UpdateServiceCatalogItemRequest {
+  name?: string
+  description?: string
+  category?: ServiceRequestCategory
+  estimated_days?: number | null
+  requires_approval?: boolean
+  is_active?: boolean
+}
+
+export interface CreateFulfillmentTaskRequest {
+  title: string
+  description?: string | null
+  assignee_id?: string | null
+  due_date?: string | null
+  notes?: string | null
+  order?: number
+}
+
+export interface UpdateFulfillmentTaskRequest {
+  title?: string
+  description?: string | null
+  status?: FulfillmentTaskStatus
+  assignee_id?: string | null
+  due_date?: string | null
+  notes?: string | null
+  order?: number
+}
+
 export interface ServiceRequest {
   id: string
   title: string
   description: string
   status: ServiceRequestStatus
   category: ServiceRequestCategory
+  catalog_item_id: string | null
   requester_id: string
   approver_id: string | null
   assignee_id: string | null
@@ -44,12 +111,14 @@ export interface ServiceRequestStatusLog {
 
 export interface ServiceRequestDetail extends ServiceRequest {
   status_logs: ServiceRequestStatusLog[]
+  fulfillment_tasks: FulfillmentTask[]
 }
 
 export interface CreateServiceRequestRequest {
   title: string
   description: string
   category: ServiceRequestCategory
+  catalog_item_id?: string | null
   due_date?: string | null
   assignee_id?: string | null
 }

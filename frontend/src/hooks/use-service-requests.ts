@@ -1,10 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { serviceRequestsApi, type ListServiceRequestsParams } from '@/api/service-requests'
+import {
+  serviceRequestsApi,
+  serviceCatalogApi,
+  fulfillmentTasksApi,
+  type ListServiceRequestsParams,
+} from '@/api/service-requests'
 import type {
   ApproveServiceRequestRequest,
+  CreateFulfillmentTaskRequest,
+  CreateServiceCatalogItemRequest,
   CreateServiceRequestRequest,
   RejectServiceRequestRequest,
   TransitionServiceRequestRequest,
+  UpdateFulfillmentTaskRequest,
+  UpdateServiceCatalogItemRequest,
   UpdateServiceRequestRequest,
 } from '@/types/service-request'
 
@@ -88,6 +97,77 @@ export function useTransitionServiceRequest(id: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['service-requests', id] })
       qc.invalidateQueries({ queryKey: ['service-requests'] })
+    },
+  })
+}
+
+// Service Catalog hooks
+
+export function useServiceCatalog(params?: { is_active?: boolean }) {
+  return useQuery({
+    queryKey: ['service-catalog', params],
+    queryFn: () => serviceCatalogApi.list(params),
+  })
+}
+
+export function useServiceCatalogItem(id: string) {
+  return useQuery({
+    queryKey: ['service-catalog', id],
+    queryFn: () => serviceCatalogApi.get(id),
+    enabled: !!id,
+  })
+}
+
+export function useCreateServiceCatalogItem() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateServiceCatalogItemRequest) => serviceCatalogApi.create(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['service-catalog'] })
+    },
+  })
+}
+
+export function useUpdateServiceCatalogItem(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateServiceCatalogItemRequest) => serviceCatalogApi.update(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['service-catalog'] })
+    },
+  })
+}
+
+// Fulfillment Task hooks
+
+export function useFulfillmentTasks(serviceRequestId: string) {
+  return useQuery({
+    queryKey: ['fulfillment-tasks', serviceRequestId],
+    queryFn: () => fulfillmentTasksApi.list(serviceRequestId),
+    enabled: !!serviceRequestId,
+  })
+}
+
+export function useCreateFulfillmentTask(serviceRequestId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateFulfillmentTaskRequest) =>
+      fulfillmentTasksApi.create(serviceRequestId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['fulfillment-tasks', serviceRequestId] })
+      qc.invalidateQueries({ queryKey: ['service-requests', serviceRequestId] })
+    },
+  })
+}
+
+export function useUpdateFulfillmentTask(serviceRequestId: string, taskId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateFulfillmentTaskRequest) =>
+      fulfillmentTasksApi.update(serviceRequestId, taskId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['fulfillment-tasks', serviceRequestId] })
+      qc.invalidateQueries({ queryKey: ['service-requests', serviceRequestId] })
     },
   })
 }

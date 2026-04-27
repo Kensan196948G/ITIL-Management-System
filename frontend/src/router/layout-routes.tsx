@@ -8,9 +8,13 @@ import { IncidentDetailPage } from '@/pages/incidents/detail'
 import { ServiceRequestListPage } from '@/pages/service-requests/list'
 import { CreateServiceRequestPage } from '@/pages/service-requests/create'
 import { ServiceRequestDetailPage } from '@/pages/service-requests/detail'
+import { ServiceCatalogPage } from '@/pages/service-requests/catalog'
 import { ChangeRequestListPage } from '@/pages/change-requests/list'
 import { CreateChangeRequestPage } from '@/pages/change-requests/create'
 import { ChangeRequestDetailPage } from '@/pages/change-requests/detail'
+import { ProblemListPage } from '@/pages/problems/list'
+import { CreateProblemPage } from '@/pages/problems/create'
+import { ProblemDetailPage } from '@/pages/problems/detail'
 import { ApprovalsPage } from '@/pages/approvals'
 import { AdminUsersPage } from '@/pages/admin/users'
 import { AuditLogsPage } from '@/pages/admin/audit-logs'
@@ -18,14 +22,6 @@ import { AdminSLAPoliciesPage } from '@/pages/admin/sla-policies'
 import { ProfilePage } from '@/pages/profile'
 import { NotificationsPage } from '@/pages/notifications'
 
-function StubPage({ title }: { title: string }) {
-  return (
-    <div className="rounded-lg border bg-card p-6">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-muted-foreground mt-2">このページは実装中です。</p>
-    </div>
-  )
-}
 
 export function LayoutRoutes() {
   return (
@@ -42,7 +38,10 @@ export function LayoutRoutes() {
           <Route path="/change-requests" element={<ChangeRequestListPage />} />
           <Route path="/change-requests/new" element={<CreateChangeRequestPage />} />
           <Route path="/change-requests/:id" element={<ChangeRequestDetailPage />} />
-          <Route path="/service-catalog/*" element={<StubPage title="サービスカタログ" />} />
+          <Route path="/problems" element={<ProblemListPage />} />
+          <Route path="/problems/new" element={<CreateProblemPage />} />
+          <Route path="/problems/:id" element={<ProblemDetailPage />} />
+          <Route path="/service-catalog" element={<ServiceCatalogPage />} />
           <Route path="/approvals/*" element={<ApprovalsPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
