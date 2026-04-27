@@ -3,6 +3,10 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { DashboardPage } from '@/pages/dashboard'
 
+vi.mock('@/api/client', () => ({
+  client: { get: vi.fn() },
+}))
+
 const mockUseDashboardSummary = vi.fn()
 const mockUseDashboardKPIs = vi.fn()
 
@@ -142,5 +146,19 @@ describe('DashboardPage', () => {
     renderWithRouter(<DashboardPage />)
     const dashes = screen.getAllByText('—')
     expect(dashes.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('レポートエクスポートセクションが表示されること', () => {
+    mockUseDashboardSummary.mockReturnValue({ data: MOCK_DATA, isLoading: false })
+    renderWithRouter(<DashboardPage />)
+    expect(screen.getByText('レポートエクスポート')).toBeInTheDocument()
+  })
+
+  it('CSVエクスポートボタンが3つ表示されること', () => {
+    mockUseDashboardSummary.mockReturnValue({ data: MOCK_DATA, isLoading: false })
+    renderWithRouter(<DashboardPage />)
+    expect(screen.getByText('インシデント CSV')).toBeInTheDocument()
+    expect(screen.getByText('サービスリクエスト CSV')).toBeInTheDocument()
+    expect(screen.getByText('変更申請 CSV')).toBeInTheDocument()
   })
 })

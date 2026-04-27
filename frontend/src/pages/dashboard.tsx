@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useDashboardSummary, useDashboardKPIs } from '@/hooks/use-dashboard'
+import { client } from '@/api/client'
 
 function StatCard({
   label,
@@ -63,6 +64,16 @@ function ModuleCard({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">{children}</div>
     </div>
   )
+}
+
+async function downloadCSV(path: string, filename: string) {
+  const resp = await client.get(path, { responseType: 'blob' })
+  const url = URL.createObjectURL(resp.data as Blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 export function DashboardPage() {
@@ -155,6 +166,32 @@ export function DashboardPage() {
           colorClass="text-purple-600"
         />
       </ModuleCard>
+
+      <div className="rounded-lg border bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-800">レポートエクスポート</h2>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => downloadCSV('/api/v1/reports/incidents', 'incidents.csv')}
+            className="rounded-md bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+          >
+            インシデント CSV
+          </button>
+          <button
+            onClick={() => downloadCSV('/api/v1/reports/service-requests', 'service_requests.csv')}
+            className="rounded-md bg-green-50 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-100"
+          >
+            サービスリクエスト CSV
+          </button>
+          <button
+            onClick={() => downloadCSV('/api/v1/reports/change-requests', 'change_requests.csv')}
+            className="rounded-md bg-purple-50 px-4 py-2 text-sm font-medium text-purple-700 hover:bg-purple-100"
+          >
+            変更申請 CSV
+          </button>
+        </div>
+      </div>
 
       <div className="rounded-lg border bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">ITIL KPI</h2>
