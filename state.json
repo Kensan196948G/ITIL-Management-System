@@ -24,7 +24,10 @@
     "cooldown_minutes_min": 5,
     "cooldown_minutes_max": 15,
     "retry_limit_ci": 15,
-    "same_root_cause_limit": 3
+    "same_root_cause_limit": 3,
+    "current_session_start_at": "2026-04-27T18:20:00+09:00",
+    "last_trigger": "cron",
+    "last_cron_session_id": "20260427-182000-ITIL-Management-System"
   },
   "automation": {
     "auto_issue_generation": true,
@@ -70,9 +73,17 @@
   },
   "learning": {
     "failure_patterns": [],
-    "success_patterns": ["TASK-001: FastAPI async stack with mocked tests"],
+    "success_patterns": [
+      "TASK-001: FastAPI async stack with mocked tests"
+    ],
     "blocked_patterns": [],
-    "preferred_fix_order": ["security", "ci", "test", "review", "refactor"]
+    "preferred_fix_order": [
+      "security",
+      "ci",
+      "test",
+      "review",
+      "refactor"
+    ]
   },
   "github": {
     "default_branch": "main",
