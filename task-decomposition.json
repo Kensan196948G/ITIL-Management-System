@@ -1,0 +1,504 @@
+{
+  "tech_stack": {
+    "backend": {
+      "language": "Python 3.11+",
+      "framework": "FastAPI",
+      "orm": "SQLAlchemy 2.0",
+      "migration": "Alembic",
+      "auth": "python-jose (JWT) + passlib (bcrypt)",
+      "validation": "Pydantic v2",
+      "testing": "pytest + httpx"
+    },
+    "frontend": {
+      "language": "TypeScript 5.x",
+      "framework": "React 18",
+      "build": "Vite",
+      "routing": "React Router v6",
+      "state": "Zustand + React Query",
+      "ui": "Tailwind CSS + shadcn/ui",
+      "testing": "Vitest + React Testing Library"
+    },
+    "database": "PostgreSQL 15+",
+    "infrastructure": "Docker Compose (dev), Dockerfile each"
+  },
+  "project_structure": {
+    "backend": {
+      "root": "backend/",
+      "app": "backend/app/",
+      "models": "backend/app/models/",
+      "schemas": "backend/app/schemas/",
+      "api_v1": "backend/app/api/v1/",
+      "services": "backend/app/services/",
+      "core": "backend/app/core/",
+      "migrations": "backend/alembic/versions/"
+    },
+    "frontend": {
+      "root": "frontend/",
+      "src": "frontend/src/",
+      "components": "frontend/src/components/",
+      "pages": "frontend/src/pages/",
+      "hooks": "frontend/src/hooks/",
+      "services": "frontend/src/services/",
+      "types": "frontend/src/types/"
+    }
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "description": "Initialize backend project: Python virtualenv, FastAPI app skeleton, project structure, SQLAlchemy setup, Alembic config, Docker Compose for PostgreSQL, health check endpoint",
+      "files": [
+        "backend/requirements.txt",
+        "backend/app/__init__.py",
+        "backend/app/main.py",
+        "backend/app/core/__init__.py",
+        "backend/app/core/config.py",
+        "backend/app/core/database.py",
+        "backend/app/core/security.py",
+        "backend/alembic/alembic.ini",
+        "backend/alembic/env.py",
+        "backend/docker-compose.yml",
+        "backend/Dockerfile",
+        "backend/.env.example"
+      ],
+      "dependencies": [],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "FastAPI app starts with uvicorn on port 8000",
+        "GET /health returns 200 OK",
+        "Docker Compose starts PostgreSQL and backend containers",
+        "Alembic can generate and apply migrations",
+        "Database connection is confirmed at startup"
+      ]
+    },
+    {
+      "id": "TASK-002",
+      "description": "Initialize frontend project: Vite + React + TypeScript scaffold, Tailwind CSS setup, shadcn/ui init, React Router setup, Zustand store skeleton, project directory structure",
+      "files": [
+        "frontend/package.json",
+        "frontend/vite.config.ts",
+        "frontend/tsconfig.json",
+        "frontend/tailwind.config.js",
+        "frontend/postcss.config.js",
+        "frontend/src/main.tsx",
+        "frontend/src/App.tsx",
+        "frontend/src/api/client.ts",
+        "frontend/src/router/index.tsx",
+        "frontend/src/store/index.ts",
+        "frontend/src/components/ui/",
+        "frontend/Dockerfile",
+        "frontend/.env.example"
+      ],
+      "dependencies": [],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "Dev server starts with `npm run dev`",
+        "Tailwind CSS classes render correctly",
+        "shadcn/ui components render (e.g. Button)",
+        "React Router navigates between stubbed pages",
+        "Docker build succeeds"
+      ]
+    },
+    {
+      "id": "TASK-003",
+      "description": "Implement authentication system: User model, JWT token generation/verification, registration endpoint, login endpoint, current-user endpoint, password hashing, role/permission model (admin, agent, user)",
+      "files": [
+        "backend/app/models/user.py",
+        "backend/app/models/role.py",
+        "backend/app/schemas/auth.py",
+        "backend/app/schemas/user.py",
+        "backend/app/api/v1/__init__.py",
+        "backend/app/api/v1/auth.py",
+        "backend/app/api/v1/users.py",
+        "backend/app/core/security.py",
+        "backend/app/core/dependencies.py",
+        "backend/alembic/versions/001_users_and_roles.py"
+      ],
+      "dependencies": ["TASK-001"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "POST /api/v1/auth/register creates a new user",
+        "POST /api/v1/auth/login returns JWT access/refresh tokens",
+        "GET /api/v1/auth/me returns current user profile",
+        "JWT token expiry and refresh work correctly",
+        "Password is bcrypt-hashed in database",
+        "Role-based access decorator works"
+      ]
+    },
+    {
+      "id": "TASK-004",
+      "description": "Implement frontend authentication: Login page, Register page, auth context/store, protected route wrapper, API client with JWT interceptor, token refresh logic",
+      "files": [
+        "frontend/src/pages/login.tsx",
+        "frontend/src/pages/register.tsx",
+        "frontend/src/store/auth-store.ts",
+        "frontend/src/components/auth/protected-route.tsx",
+        "frontend/src/api/auth.ts",
+        "frontend/src/hooks/use-auth.ts",
+        "frontend/src/types/auth.ts"
+      ],
+      "dependencies": ["TASK-002", "TASK-003"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "User can register from the frontend form",
+        "User can log in and token is stored",
+        "Protected routes redirect to login when unauthenticated",
+        "Access token is attached to all API requests",
+        "Expired token triggers automatic refresh",
+        "Logout clears tokens and redirects to login"
+      ]
+    },
+    {
+      "id": "TASK-005",
+      "description": "Implement base frontend layout: sidebar navigation, top header with user menu, breadcrumbs, responsive layout shell, reusable page wrapper",
+      "files": [
+        "frontend/src/components/layout/app-layout.tsx",
+        "frontend/src/components/layout/sidebar.tsx",
+        "frontend/src/components/layout/header.tsx",
+        "frontend/src/components/layout/breadcrumbs.tsx",
+        "frontend/src/router/layout-routes.tsx"
+      ],
+      "dependencies": ["TASK-004"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "Sidebar shows navigation links for all modules",
+        "Header shows logged-in user name and logout button",
+        "Breadcrumbs reflect current route hierarchy",
+        "Layout is responsive (collapses on mobile)",
+        "Active route is highlighted in sidebar"
+      ]
+    },
+    {
+      "id": "TASK-006",
+      "description": "Implement backend shared infrastructure: common CRUD base service, pagination utility, error handlers, response envelope, permission checking middleware, audit log model",
+      "files": [
+        "backend/app/core/base_service.py",
+        "backend/app/core/pagination.py",
+        "backend/app/core/errors.py",
+        "backend/app/core/response.py",
+        "backend/app/models/audit_log.py",
+        "backend/app/schemas/common.py",
+        "backend/alembic/versions/002_audit_log.py"
+      ],
+      "dependencies": ["TASK-001"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "BaseService provides create/read/update/delete/list methods",
+        "Pagination returns page/page_size/total/items envelope",
+        "Custom error handlers return consistent error JSON",
+        "Audit log records create/update/delete operations with user_id and timestamp"
+      ]
+    },
+    {
+      "id": "TASK-007",
+      "description": "Implement Incident Management data models: Incident model, IncidentStatusLog model, Priority matrix model, SLA configuration model, database migrations",
+      "files": [
+        "backend/app/models/incident.py",
+        "backend/app/models/priority_matrix.py",
+        "backend/app/models/sla_config.py",
+        "backend/app/schemas/incident.py",
+        "backend/app/schemas/priority_matrix.py",
+        "backend/app/schemas/sla_config.py",
+        "backend/alembic/versions/003_incident_management.py"
+      ],
+      "dependencies": ["TASK-003", "TASK-006"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "Incident model has all fields: id, title, description, status, priority, category, assigned_to, reported_by, resolution, sla_deadline, timestamps",
+        "IncidentStatusLog tracks all status changes with timestamp and user",
+        "Priority matrix model defines impact × urgency → priority mapping",
+        "SLA config stores target resolution times per priority level",
+        "Migrations are reversible (upgrade + downgrade)"
+      ]
+    },
+    {
+      "id": "TASK-008",
+      "description": "Implement Incident status workflow engine: state machine with valid transitions (New→Assigned→InProgress→Resolved→Closed), transition validation, automatic status logging, re-open logic, notification triggers",
+      "files": [
+        "backend/app/services/incident_workflow.py",
+        "backend/app/services/notification.py",
+        "backend/app/schemas/incident.py"
+      ],
+      "dependencies": ["TASK-007"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "Workflow defines ALL valid status transitions",
+        "Invalid transitions raise explicit 400 error with message",
+        "Each transition creates an IncidentStatusLog entry",
+        "Resolved→Closed requires confirmation or auto-closes after SLA",
+        "Re-open from Closed→InProgress is allowed with reason"
+      ]
+    },
+    {
+      "id": "TASK-009",
+      "description": "Implement Incident priority matrix and SLA timer: priority calculation from impact×urgency, SLA deadline calculation, overdue detection, SLA breach notification service",
+      "files": [
+        "backend/app/services/priority_service.py",
+        "backend/app/services/sla_service.py",
+        "backend/app/schemas/priority_matrix.py",
+        "backend/app/schemas/sla_config.py"
+      ],
+      "dependencies": ["TASK-007"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "Priority is auto-calculated from impact and urgency (e.g. High×Critical = P1)",
+        "SLA deadline is computed as created_at + SLA duration for the priority",
+        "Overdue incidents are flagged with is_overdue = true",
+        "SLA breach triggers a notification event",
+        "SLA config can be updated (affects future incidents only)"
+      ]
+    },
+    {
+      "id": "TASK-010",
+      "description": "Implement Incident Management REST API endpoints: CRUD for incidents, status transition endpoint, get by ID with full details, list with filters (status, priority, assignee, date range), assign incident endpoint, search by keyword",
+      "files": [
+        "backend/app/api/v1/incidents.py",
+        "backend/app/services/incident_service.py"
+      ],
+      "dependencies": ["TASK-008", "TASK-009"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "POST /api/v1/incidents creates incident with auto-calculated priority and SLA",
+        "GET /api/v1/incidents returns paginated list with filter query params",
+        "GET /api/v1/incidents/{id} returns full incident with status history",
+        "PUT /api/v1/incidents/{id} updates editable fields (not status)",
+        "DELETE /api/v1/incidents/{id} soft-deletes",
+        "POST /api/v1/incidents/{id}/transition validates and applies status change",
+        "PUT /api/v1/incidents/{id}/assign assigns agent, sets status to Assigned"
+      ]
+    },
+    {
+      "id": "TASK-011",
+      "description": "Implement Incident Management UI: incident list view with filters, create/edit form, detail view with status history timeline, status transition buttons, assign dialog, priority badge, SLA timer display",
+      "files": [
+        "frontend/src/pages/incidents/incident-list.tsx",
+        "frontend/src/pages/incidents/incident-detail.tsx",
+        "frontend/src/pages/incidents/incident-form.tsx",
+        "frontend/src/components/incidents/status-badge.tsx",
+        "frontend/src/components/incidents/priority-badge.tsx",
+        "frontend/src/components/incidents/sla-timer.tsx",
+        "frontend/src/components/incidents/status-history.tsx",
+        "frontend/src/components/incidents/transition-buttons.tsx",
+        "frontend/src/components/incidents/assign-dialog.tsx",
+        "frontend/src/services/incidents.ts",
+        "frontend/src/types/incident.ts",
+        "frontend/src/hooks/use-incidents.ts"
+      ],
+      "dependencies": ["TASK-005", "TASK-010"],
+      "estimated_complexity": "L",
+      "acceptance_criteria": [
+        "Incident list page renders with data table, pagination, and filter controls",
+        "Create incident form includes all required fields with validation",
+        "Detail page shows full incident info, status history timeline, and SLA countdown",
+        "Status transition buttons are contextual (only valid next states shown)",
+        "Assign dialog shows user search and sets agent on submit",
+        "SLA timer color-codes: green (on track), yellow (at risk), red (breached)",
+        "Priority is displayed as color-coded badge (P1=red, P2=orange, P3=yellow, P4=green)"
+      ]
+    },
+    {
+      "id": "TASK-012",
+      "description": "Implement Service Request Management data models: ServiceRequest model, ServiceCatalogItem model, ApprovalRequest model, FulfillmentTask model, database migrations",
+      "files": [
+        "backend/app/models/service_request.py",
+        "backend/app/models/service_catalog.py",
+        "backend/app/models/approval.py",
+        "backend/app/models/fulfillment.py",
+        "backend/app/schemas/service_request.py",
+        "backend/app/schemas/service_catalog.py",
+        "backend/app/schemas/approval.py",
+        "backend/app/schemas/fulfillment.py",
+        "backend/alembic/versions/004_service_request_management.py"
+      ],
+      "dependencies": ["TASK-003", "TASK-006"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "ServiceRequest model has fields: id, title, description, requester_id, catalog_item_id, status, priority, approval_status, timestamps",
+        "ServiceCatalogItem model has: id, name, description, category, approval_required, estimated_fulfillment_time, is_active",
+        "ApprovalRequest links to service_request, has approver_id, status (pending/approved/rejected), comments, decided_at",
+        "FulfillmentTask has: id, service_request_id, assigned_to, status, notes, completed_at",
+        "All models have proper foreign keys and relationships"
+      ]
+    },
+    {
+      "id": "TASK-013",
+      "description": "Implement Service Request catalog and approval workflow: catalog browse, request submission, multi-level approval chain, approval/rejection logic, auto-notify on status change",
+      "files": [
+        "backend/app/services/catalog_service.py",
+        "backend/app/services/request_service.py",
+        "backend/app/services/approval_service.py",
+        "backend/app/api/v1/service_catalog.py",
+        "backend/app/api/v1/service_requests.py",
+        "backend/app/api/v1/approvals.py"
+      ],
+      "dependencies": ["TASK-012"],
+      "estimated_complexity": "L",
+      "acceptance_criteria": [
+        "GET /api/v1/service-catalog returns active catalog items",
+        "POST /api/v1/service-requests creates request with auto-approval or pending",
+        "GET /api/v1/service-requests returns user's requests (or all for agents/admins)",
+        "POST /api/v1/approvals/{id}/approve sets approved, triggers fulfillment",
+        "POST /api/v1/approvals/{id}/reject sets rejected with reason",
+        "If catalog item has approval_required=false, request is auto-approved",
+        "Approval chain supports sequential approvers (optional)"
+      ]
+    },
+    {
+      "id": "TASK-014",
+      "description": "Implement Service Request fulfillment tracking: fulfillment task assignment, progress update, completion marking, fulfillment status dashboard",
+      "files": [
+        "backend/app/services/fulfillment_service.py",
+        "backend/app/api/v1/fulfillment.py"
+      ],
+      "dependencies": ["TASK-013"],
+      "estimated_complexity": "S",
+      "acceptance_criteria": [
+        "POST /api/v1/fulfillment requests creates fulfillment task on approval",
+        "PUT /api/v1/fulfillment/{id}/progress updates status with notes",
+        "PUT /api/v1/fulfillment/{id}/complete marks task done with resolution notes",
+        "Fulfillment completion auto-updates service request status to Completed"
+      ]
+    },
+    {
+      "id": "TASK-015",
+      "description": "Implement Service Request Management UI: service catalog browse page, request submission form, user's request list, approval queue for approvers, approval/reject action UI, fulfillment progress tracking",
+      "files": [
+        "frontend/src/pages/service-catalog/catalog-list.tsx",
+        "frontend/src/pages/service-catalog/request-form.tsx",
+        "frontend/src/pages/service-requests/request-list.tsx",
+        "frontend/src/pages/service-requests/request-detail.tsx",
+        "frontend/src/pages/approvals/approval-queue.tsx",
+        "frontend/src/components/service-requests/status-timeline.tsx",
+        "frontend/src/components/approvals/approval-actions.tsx",
+        "frontend/src/components/fulfillment/progress-tracker.tsx",
+        "frontend/src/services/service-catalog.ts",
+        "frontend/src/services/service-requests.ts",
+        "frontend/src/services/approvals.ts",
+        "frontend/src/types/service-request.ts"
+      ],
+      "dependencies": ["TASK-005", "TASK-014"],
+      "estimated_complexity": "L",
+      "acceptance_criteria": [
+        "Catalog list shows active items grouped by category",
+        "Request form auto-fills catalog item details, allows additional notes",
+        "Request list shows status with color-coded badges and timeline",
+        "Approval queue (for approvers) shows pending requests with approve/reject buttons",
+        "Approval action opens confirmation dialog with optional comment field",
+        "Fulfillment progress shows step-by-step status indicator",
+        "Request detail page shows full lifecycle from submission to fulfillment"
+      ]
+    },
+    {
+      "id": "TASK-016",
+      "description": "Implement Change Management data models: ChangeRequest model, CAB model, CABMembership model, ChangeSchedule model, database migrations",
+      "files": [
+        "backend/app/models/change_request.py",
+        "backend/app/models/cab.py",
+        "backend/app/models/change_schedule.py",
+        "backend/app/schemas/change_request.py",
+        "backend/app/schemas/cab.py",
+        "backend/app/schemas/change_schedule.py",
+        "backend/alembic/versions/005_change_management.py"
+      ],
+      "dependencies": ["TASK-003", "TASK-006"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "ChangeRequest model has fields: id, title, description, requester_id, change_type (standard/emergency/normal), priority, status, risk_level, impact_scope, implementation_plan, rollback_plan, cab_id, scheduled_start, scheduled_end, timestamps",
+        "CAB model has: id, name, description, is_active",
+        "CABMembership links user to CAB with role (chair/member/observer)",
+        "ChangeSchedule model: id, change_request_id, scheduled_start, scheduled_end, actual_start, actual_end, status, notes"
+      ]
+    },
+    {
+      "id": "TASK-017",
+      "description": "Implement RFC submission and CAB approval workflow: change request submission, CAB voting/decision, emergency change bypass, risk assessment, approval chain",
+      "files": [
+        "backend/app/services/change_workflow.py",
+        "backend/app/services/cab_service.py",
+        "backend/app/services/risk_assessment.py",
+        "backend/app/api/v1/change_requests.py",
+        "backend/app/api/v1/cab.py"
+      ],
+      "dependencies": ["TASK-016"],
+      "estimated_complexity": "L",
+      "acceptance_criteria": [
+        "POST /api/v1/change-requests creates RFC with pending CAB approval",
+        "POST /api/v1/cab/{id}/vote records vote (approve/reject/abstain) with comments",
+        "CAB decision is finalized when quorum (50%+1) reached or deadline passed",
+        "Emergency changes skip CAB approval with justification",
+        "Risk level is auto-calculated from impact × probability (optional)",
+        "Change request status workflow: Draft→Submitted→CAB Review→Approved/Rejected→Scheduled→In Progress→Completed→Closed"
+      ]
+    },
+    {
+      "id": "TASK-018",
+      "description": "Implement Change schedule calendar: schedule CRUD, conflict detection, calendar view data endpoint, change window enforcement, deployment timeline",
+      "files": [
+        "backend/app/services/schedule_service.py",
+        "backend/app/api/v1/change_schedule.py"
+      ],
+      "dependencies": ["TASK-017"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "PUT /api/v1/change-requests/{id}/schedule sets scheduled_start/end",
+        "Conflict detection warns if two changes overlap on same system/scope",
+        "GET /api/v1/change-schedule returns calendar events with date range filter",
+        "Change window enforcement: certain types restricted to maintenance windows",
+        "Approved changes appear on schedule as 'Scheduled' status"
+      ]
+    },
+    {
+      "id": "TASK-019",
+      "description": "Implement Change Management UI: RFC submission form with risk assessment, CAB voting dashboard, change schedule calendar view, change request detail with full workflow, CAB management interface",
+      "files": [
+        "frontend/src/pages/change-requests/request-form.tsx",
+        "frontend/src/pages/change-requests/request-list.tsx",
+        "frontend/src/pages/change-requests/request-detail.tsx",
+        "frontend/src/pages/cab/cab-dashboard.tsx",
+        "frontend/src/pages/cab/cab-management.tsx",
+        "frontend/src/pages/change-schedule/calendar-view.tsx",
+        "frontend/src/components/change-requests/risk-badge.tsx",
+        "frontend/src/components/change-requests/workflow-timeline.tsx",
+        "frontend/src/components/cab/vote-panel.tsx",
+        "frontend/src/components/change-schedule/calendar-event.tsx",
+        "frontend/src/services/change-requests.ts",
+        "frontend/src/services/cab.ts",
+        "frontend/src/types/change-request.ts"
+      ],
+      "dependencies": ["TASK-005", "TASK-018"],
+      "estimated_complexity": "L",
+      "acceptance_criteria": [
+        "RFC form includes all required fields with risk assessment section",
+        "Change request list shows status, priority, risk with color badges",
+        "Detail page shows full lifecycle with CAB votes and schedule",
+        "CAB dashboard shows pending votes, meeting schedule, member list",
+        "Calendar view renders scheduled changes with color by status/type",
+        "Calendar supports month/week/day views",
+        "CAB management allows adding/removing members"
+      ]
+    },
+    {
+      "id": "TASK-020",
+      "description": "Implement dashboard and reporting: dashboard widget framework, incident metrics (open counts, SLA breach rate, MTTR), service request metrics, change metrics (success rate, emergency count), data export (CSV)",
+      "files": [
+        "backend/app/services/dashboard_service.py",
+        "backend/app/api/v1/dashboard.py",
+        "frontend/src/pages/dashboard/dashboard-page.tsx",
+        "frontend/src/components/dashboard/stat-card.tsx",
+        "frontend/src/components/dashboard/incident-chart.tsx",
+        "frontend/src/components/dashboard/change-chart.tsx",
+        "frontend/src/services/dashboard.ts"
+      ],
+      "dependencies": ["TASK-011", "TASK-015", "TASK-019"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "Dashboard shows incident summary (open/resolved/total) with charts",
+        "SLA breach rate is calculated and displayed",
+        "Service request metrics show submitted/approved/fulfilled counts",
+        "Change management metrics show success rate and emergency change ratio",
+        "Data export downloads CSV of current filtered data",
+        "Dashboard auto-refreshes every 60 seconds"
+      ]
+    }
+  ],
+  "current_focus": "TASK-001"
+}
