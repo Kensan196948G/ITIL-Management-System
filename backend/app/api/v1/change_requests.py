@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -9,6 +10,8 @@ from app.core.dependencies import get_current_user, require_agent_or_admin
 from app.core.errors import NotFoundError
 from app.core.pagination import PaginatedResponse
 from app.models.change_request import (
+    CABVote,
+    ChangeSchedule,
     ChangeRequestPriority,
     ChangeRequestRisk,
     ChangeRequestStatus,
@@ -16,6 +19,8 @@ from app.models.change_request import (
 )
 from app.models.user import User
 from app.schemas.change_request import (
+    CABVoteCreate,
+    CABVoteResponse,
     ChangeRequestApprove,
     ChangeRequestCreate,
     ChangeRequestDetailResponse,
@@ -23,7 +28,11 @@ from app.schemas.change_request import (
     ChangeRequestResponse,
     ChangeRequestTransition,
     ChangeRequestUpdate,
+    ChangeScheduleCreate,
+    ChangeScheduleResponse,
+    ChangeScheduleUpdate,
 )
+from sqlalchemy import select
 from app.services.change_request_service import ChangeRequestService
 from app.services.change_request_workflow import ChangeRequestWorkflowService
 
@@ -184,3 +193,146 @@ async def get_allowed_transitions(
         raise NotFoundError("ChangeRequest", str(request_id))
     allowed = ChangeRequestWorkflowService.get_allowed_transitions(cr.status)
     return [s.value for s in allowed]
+
+
+# ---- CAB Vote endpoints ----
+
+@router.get("/{request_id}/cab-votes", response_model=list[CABVoteResponse])
+async def list_cab_votes(
+    request_id: UUID,
+    db: AsyncSession = Depends(get_session),
+    _: User = Depends(get_current_user),
+):
+    cr = await _service.get(db, request_id)
+    if not cr:
+        raise NotFoundError("ChangeRequest", str(request_id))
+    result = await db.execute(
+        select(CABVote).where(CABVote.change_request_id == request_id).order_by(CABVote.voted_at)
+    )
+    return result.scalars().all()
+
+
+@router.post("/{request_id}/cab-votes", response_model=CABVoteResponse, status_code=201)
+async def cast_cab_vote(
+    request_id: UUID,
+    body: CABVoteCreate,
+    db: AsyncSession = Depends(get_session),
+    current_user: User = Depends(require_agent_or_admin),
+):
+    cr = await _service.get(db, request_id)
+    if not cr:
+        raise NotFoundError("ChangeRequest", str(request_id))
+    # Upsert: one vote per user per change request
+    existing = await db.execute(
+        select(CABVote).where(
+            CABVote.change_request_id == request_id,
+            CABVote.voter_id == current_user.id,
+        )
+    )
+    vote = existing.scalar_one_or_none()
+    if vote:
+        vote.decision = body.decision
+        vote.comment = body.comment
+    else:
+        vote = CABVote(
+            change_request_id=request_id,
+            voter_id=current_user.id,
+            decision=body.decision,
+            comment=body.comment,
+        )
+        db.add(vote)
+    await db.flush()
+    await db.refresh(vote)
+    return vote
+
+
+# ---- Change Schedule endpoints ----
+
+@router.get("/{request_id}/schedule", response_model=ChangeScheduleResponse)
+async def get_change_schedule(
+    request_id: UUID,
+    db: AsyncSession = Depends(get_session),
+    _: User = Depends(get_current_user),
+):
+    cr = await _service.get(db, request_id)
+    if not cr:
+        raise NotFoundError("ChangeRequest", str(request_id))
+    result = await db.execute(
+        select(ChangeSchedule).where(ChangeSchedule.change_request_id == request_id)
+    )
+    schedule = result.scalar_one_or_none()
+    if not schedule:
+        raise NotFoundError("ChangeSchedule", str(request_id))
+    return schedule
+
+
+@router.post("/{request_id}/schedule", response_model=ChangeScheduleResponse, status_code=201)
+async def create_change_schedule(
+    request_id: UUID,
+    body: ChangeScheduleCreate,
+    db: AsyncSession = Depends(get_session),
+    _: User = Depends(require_agent_or_admin),
+):
+    cr = await _service.get(db, request_id)
+    if not cr:
+        raise NotFoundError("ChangeRequest", str(request_id))
+    schedule = ChangeSchedule(
+        change_request_id=request_id,
+        scheduled_start=body.scheduled_start,
+        scheduled_end=body.scheduled_end,
+        environment=body.environment,
+        notes=body.notes,
+        confirmed=body.confirmed,
+    )
+    db.add(schedule)
+    await db.flush()
+    await db.refresh(schedule)
+    return schedule
+
+
+@router.put("/{request_id}/schedule", response_model=ChangeScheduleResponse)
+async def update_change_schedule(
+    request_id: UUID,
+    body: ChangeScheduleUpdate,
+    db: AsyncSession = Depends(get_session),
+    _: User = Depends(require_agent_or_admin),
+):
+    result = await db.execute(
+        select(ChangeSchedule).where(ChangeSchedule.change_request_id == request_id)
+    )
+    schedule = result.scalar_one_or_none()
+    if not schedule:
+        raise NotFoundError("ChangeSchedule", str(request_id))
+    for key, value in body.model_dump(exclude_none=True).items():
+        setattr(schedule, key, value)
+    await db.flush()
+    await db.refresh(schedule)
+    return schedule
+
+
+@router.get("/schedules/calendar", response_model=list[dict])
+async def get_schedule_calendar(
+    from_date: Optional[datetime] = Query(None, description="ISO 8601 datetime, e.g. 2026-01-01"),
+    to_date: Optional[datetime] = Query(None, description="ISO 8601 datetime, e.g. 2026-12-31"),
+    db: AsyncSession = Depends(get_session),
+    _: User = Depends(get_current_user),
+):
+    """Calendar view: returns all scheduled change windows with CR details."""
+    query = select(ChangeSchedule)
+    if from_date:
+        query = query.where(ChangeSchedule.scheduled_end >= from_date)
+    if to_date:
+        query = query.where(ChangeSchedule.scheduled_start <= to_date)
+    result = await db.execute(query.order_by(ChangeSchedule.scheduled_start))
+    schedules = result.scalars().all()
+    return [
+        {
+            "id": str(s.id),
+            "change_request_id": str(s.change_request_id),
+            "scheduled_start": s.scheduled_start.isoformat(),
+            "scheduled_end": s.scheduled_end.isoformat(),
+            "environment": s.environment,
+            "confirmed": s.confirmed,
+        }
+        for s in schedules
+    ]

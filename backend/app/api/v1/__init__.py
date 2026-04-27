@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import auth, users, incidents, service_requests, change_requests, dashboard, audit_logs, notifications, sla_policies
+from app.api.v1 import auth, users, incidents, service_requests, change_requests, dashboard, audit_logs, notifications, sla_policies, problems
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -11,3 +11,4 @@ api_router.include_router(dashboard.router)
 api_router.include_router(audit_logs.router)
 api_router.include_router(notifications.router)
 api_router.include_router(sla_policies.router)
+api_router.include_router(problems.router)

@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Optional, Sequence
 from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -145,24 +145,41 @@ class IncidentService(BaseService[Incident]):
         priority=None,
         assignee_id: Optional[UUID] = None,
         reporter_id: Optional[UUID] = None,
+        search: Optional[str] = None,
+        created_from: Optional[datetime] = None,
+        created_to: Optional[datetime] = None,
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[Sequence[Incident], int]:
         query = select(Incident)
         count_query = select(func.count()).select_from(Incident)
 
+        filters = []
         if status:
-            query = query.where(Incident.status == status)
-            count_query = count_query.where(Incident.status == status)
+            filters.append(Incident.status == status)
         if priority:
-            query = query.where(Incident.priority == priority)
-            count_query = count_query.where(Incident.priority == priority)
+            filters.append(Incident.priority == priority)
         if assignee_id:
-            query = query.where(Incident.assignee_id == assignee_id)
-            count_query = count_query.where(Incident.assignee_id == assignee_id)
+            filters.append(Incident.assignee_id == assignee_id)
         if reporter_id:
-            query = query.where(Incident.reporter_id == reporter_id)
-            count_query = count_query.where(Incident.reporter_id == reporter_id)
+            filters.append(Incident.reporter_id == reporter_id)
+        if search:
+            pattern = f"%{search}%"
+            filters.append(
+                or_(
+                    Incident.title.ilike(pattern),
+                    Incident.description.ilike(pattern),
+                )
+            )
+        if created_from:
+            filters.append(Incident.created_at >= created_from)
+        if created_to:
+            filters.append(Incident.created_at <= created_to)
+
+        if filters:
+            for f in filters:
+                query = query.where(f)
+                count_query = count_query.where(f)
 
         total_result = await db.execute(count_query)
         total = total_result.scalar_one()

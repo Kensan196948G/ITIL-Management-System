@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 from app.core.base_service import BaseService
 from app.core.errors import NotFoundError
 from app.models.service_request import (
+    FulfillmentTask,
     ServiceRequest,
     ServiceRequestCategory,
     ServiceRequestStatus,
@@ -27,7 +28,10 @@ class ServiceRequestService(BaseService[ServiceRequest]):
         result = await db.execute(
             select(ServiceRequest)
             .where(ServiceRequest.id == request_id)
-            .options(selectinload(ServiceRequest.status_logs))
+            .options(
+                selectinload(ServiceRequest.status_logs),
+                selectinload(ServiceRequest.fulfillment_tasks),
+            )
         )
         return result.scalar_one_or_none()
 
@@ -39,6 +43,7 @@ class ServiceRequestService(BaseService[ServiceRequest]):
         description: str,
         category: ServiceRequestCategory,
         requester_id: UUID,
+        catalog_item_id: Optional[UUID] = None,
         due_date: Optional[datetime] = None,
         assignee_id: Optional[UUID] = None,
     ) -> ServiceRequest:
@@ -48,6 +53,7 @@ class ServiceRequestService(BaseService[ServiceRequest]):
             status=ServiceRequestStatus.SUBMITTED,
             category=category,
             requester_id=requester_id,
+            catalog_item_id=catalog_item_id,
             due_date=due_date,
             assignee_id=assignee_id,
         )

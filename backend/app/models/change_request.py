@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Enum as SAEnum, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, Enum as SAEnum, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -109,6 +109,16 @@ class ChangeRequest(Base):
         back_populates="change_request",
         order_by="ChangeRequestStatusLog.created_at",
     )
+    cab_votes: Mapped[list["CABVote"]] = relationship(
+        "CABVote",
+        back_populates="change_request",
+        order_by="CABVote.voted_at",
+    )
+    schedule: Mapped[Optional["ChangeSchedule"]] = relationship(
+        "ChangeSchedule",
+        back_populates="change_request",
+        uselist=False,
+    )
 
 
 class ChangeRequestStatusLog(Base):
@@ -138,3 +148,66 @@ class ChangeRequestStatusLog(Base):
         "ChangeRequest", back_populates="status_logs"
     )
     changed_by: Mapped["User"] = relationship("User")
+
+
+class CABVoteDecision(str, enum.Enum):
+    APPROVE = "approve"
+    REJECT = "reject"
+    ABSTAIN = "abstain"
+
+
+class CABVote(Base):
+    """CAB member voting record for a change request."""
+
+    __tablename__ = "cab_votes"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    change_request_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("change_requests.id"), nullable=False, index=True
+    )
+    voter_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+    )
+    decision: Mapped[CABVoteDecision] = mapped_column(
+        SAEnum(CABVoteDecision, name="cab_vote_decision"),
+        nullable=False,
+    )
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    voted_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), nullable=False
+    )
+
+    change_request: Mapped["ChangeRequest"] = relationship(
+        "ChangeRequest", back_populates="cab_votes"
+    )
+    voter: Mapped["User"] = relationship("User")
+
+
+class ChangeSchedule(Base):
+    """Planned maintenance / deployment window for a change request."""
+
+    __tablename__ = "change_schedules"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    change_request_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("change_requests.id"), nullable=False, unique=True, index=True
+    )
+    scheduled_start: Mapped[datetime] = mapped_column(nullable=False)
+    scheduled_end: Mapped[datetime] = mapped_column(nullable=False)
+    environment: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    confirmed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    change_request: Mapped["ChangeRequest"] = relationship(
+        "ChangeRequest", back_populates="schedule"
+    )

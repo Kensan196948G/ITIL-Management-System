@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -50,6 +51,9 @@ async def list_incidents(
     status: Optional[IncidentStatus] = Query(None),
     priority: Optional[IncidentPriority] = Query(None),
     assignee_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(None, description="Keyword search in title and description"),
+    created_from: Optional[datetime] = Query(None, description="Filter by created_at >= this datetime (ISO 8601)"),
+    created_to: Optional[datetime] = Query(None, description="Filter by created_at <= this datetime (ISO 8601)"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_session),
@@ -60,6 +64,9 @@ async def list_incidents(
         status=status,
         priority=priority,
         assignee_id=assignee_id,
+        search=search,
+        created_from=created_from,
+        created_to=created_to,
         page=page,
         page_size=page_size,
     )

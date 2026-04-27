@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from app.models.change_request import (
+    CABVoteDecision,
     ChangeRequestPriority,
     ChangeRequestRisk,
     ChangeRequestStatus,
@@ -91,3 +92,55 @@ class ChangeRequestResponse(BaseModel):
 
 class ChangeRequestDetailResponse(ChangeRequestResponse):
     status_logs: list[ChangeRequestStatusLogResponse] = []
+    cab_votes: list["CABVoteResponse"] = []
+    schedule: Optional["ChangeScheduleResponse"] = None
+
+
+# ---- CAB Vote schemas ----
+
+class CABVoteCreate(BaseModel):
+    decision: CABVoteDecision
+    comment: Optional[str] = None
+
+
+class CABVoteResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    change_request_id: uuid.UUID
+    voter_id: uuid.UUID
+    decision: CABVoteDecision
+    comment: Optional[str]
+    voted_at: datetime
+
+
+# ---- Change Schedule schemas ----
+
+class ChangeScheduleCreate(BaseModel):
+    scheduled_start: datetime
+    scheduled_end: datetime
+    environment: Optional[str] = Field(None, max_length=100)
+    notes: Optional[str] = None
+    confirmed: bool = False
+
+
+class ChangeScheduleUpdate(BaseModel):
+    scheduled_start: Optional[datetime] = None
+    scheduled_end: Optional[datetime] = None
+    environment: Optional[str] = Field(None, max_length=100)
+    notes: Optional[str] = None
+    confirmed: Optional[bool] = None
+
+
+class ChangeScheduleResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    change_request_id: uuid.UUID
+    scheduled_start: datetime
+    scheduled_end: datetime
+    environment: Optional[str]
+    notes: Optional[str]
+    confirmed: bool
+    created_at: datetime
+    updated_at: datetime
