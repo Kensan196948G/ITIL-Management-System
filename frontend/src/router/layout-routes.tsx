@@ -12,6 +12,7 @@ import { ServiceCatalogPage } from '@/pages/service-requests/catalog'
 import { ChangeRequestListPage } from '@/pages/change-requests/list'
 import { CreateChangeRequestPage } from '@/pages/change-requests/create'
 import { ChangeRequestDetailPage } from '@/pages/change-requests/detail'
+import { ChangeScheduleCalendarPage } from '@/pages/change-requests/calendar'
 import { ProblemListPage } from '@/pages/problems/list'
 import { CreateProblemPage } from '@/pages/problems/create'
 import { ProblemDetailPage } from '@/pages/problems/detail'
@@ -37,6 +38,7 @@ export function LayoutRoutes() {
           <Route path="/service-requests/:id" element={<ServiceRequestDetailPage />} />
           <Route path="/change-requests" element={<ChangeRequestListPage />} />
           <Route path="/change-requests/new" element={<CreateChangeRequestPage />} />
+          <Route path="/change-requests/calendar" element={<ChangeScheduleCalendarPage />} />
           <Route path="/change-requests/:id" element={<ChangeRequestDetailPage />} />
           <Route path="/problems" element={<ProblemListPage />} />
           <Route path="/problems/new" element={<CreateProblemPage />} />
