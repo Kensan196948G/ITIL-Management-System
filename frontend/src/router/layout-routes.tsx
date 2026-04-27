@@ -11,6 +11,10 @@ import { ServiceRequestDetailPage } from '@/pages/service-requests/detail'
 import { ChangeRequestListPage } from '@/pages/change-requests/list'
 import { CreateChangeRequestPage } from '@/pages/change-requests/create'
 import { ChangeRequestDetailPage } from '@/pages/change-requests/detail'
+import { ApprovalsPage } from '@/pages/approvals'
+import { AdminUsersPage } from '@/pages/admin/users'
+import { AuditLogsPage } from '@/pages/admin/audit-logs'
+import { ProfilePage } from '@/pages/profile'
 
 function StubPage({ title }: { title: string }) {
   return (
@@ -37,7 +41,10 @@ export function LayoutRoutes() {
           <Route path="/change-requests/new" element={<CreateChangeRequestPage />} />
           <Route path="/change-requests/:id" element={<ChangeRequestDetailPage />} />
           <Route path="/service-catalog/*" element={<StubPage title="サービスカタログ" />} />
-          <Route path="/approvals/*" element={<StubPage title="承認キュー" />} />
+          <Route path="/approvals/*" element={<ApprovalsPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </AppLayout>
     </ProtectedRoute>
