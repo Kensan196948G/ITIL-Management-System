@@ -17,7 +17,7 @@
     "security_blocker_target": 0,
     "ci_stability_target": 0.95,
     "tasks_total": 20,
-    "tasks_completed": 18
+    "tasks_completed": 20
   },
   "execution": {
     "max_duration_minutes": 300,
@@ -68,8 +68,8 @@
     "TASK-016": "completed",
     "TASK-017": "completed",
     "TASK-018": "completed",
-    "TASK-019": "pending",
-    "TASK-020": "pending"
+    "TASK-019": "completed",
+    "TASK-020": "completed"
   },
   "learning": {
     "failure_patterns": [],
@@ -91,7 +91,9 @@
       "TASK-015: Service Catalog UI + fulfillment task support - types (FulfillmentTask/ServiceCatalogItem), serviceCatalogApi, fulfillmentTasksApi, useServiceCatalog/useFulfillmentTasks hooks, ServiceCatalogPage with card grid + request modal, detail page fulfillment task section, 10 new tests (120 frontend tests total)",
       "TASK-016: Problem management frontend - types (problem.ts), API client (problems.ts), hooks (use-problems.ts), ProblemListPage with status/priority/known-error filters + pagination, CreateProblemPage with priority select + optional root_cause/workaround fields, ProblemDetailPage with TransitionPanel + LinkedIncidentsList + StatusHistory, status-badge components, sidebar nav, 34 new tests (154 frontend tests total)",
       "TASK-017: CAB voting + change schedule frontend integration - CABVotesPanel (tally badges, vote list, radio form), ChangeSchedulePanel (display + datetime-local edit, create/update), embedded in ChangeRequestDetailPage; 15 new tests for detail page (170 frontend tests total)",
-      "TASK-018: Change schedule calendar page - ChangeScheduleCalendarPage with month navigation (prev/next/today), calendar grid by day, scheduled items as links to detail pages; sidebar nav CalendarDays icon; 11 new tests (181 frontend tests total)"
+      "TASK-018: Change schedule calendar page - ChangeScheduleCalendarPage with month navigation (prev/next/today), calendar grid by day, scheduled items as links to detail pages; sidebar nav CalendarDays icon; 11 new tests (181 frontend tests total)",
+      "TASK-019: Dashboard KPI endpoint + frontend - /dashboard/kpis (MTTR, SLA breach rate, change success rate, problem counts), KPICard component, ITIL KPI section in DashboardPage, useDashboardKPIs hook; 8 new backend tests (343 total), 5 new frontend tests (186 total)",
+      "TASK-020: CSV export API + dashboard export buttons - /reports/incidents, /reports/service-requests, /reports/change-requests with auth+filters, downloadCSV helper, 3 export buttons on DashboardPage; 15 new backend tests (358 total), 2 new frontend tests (188 total)"
     ],
     "blocked_patterns": [],
     "preferred_fix_order": [
@@ -110,10 +112,10 @@
     "project_sync_enabled": true
   },
   "status": {
-    "stable": false,
+    "stable": true,
     "blocked": false,
     "current_phase": "build",
-    "current_task": "TASK-019",
-    "last_updated": "2026-04-27T20:25:00+09:00"
+    "current_task": null,
+    "last_updated": "2026-04-27T21:00:00+09:00"
   }
 }
