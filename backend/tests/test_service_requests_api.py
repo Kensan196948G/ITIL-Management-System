@@ -38,6 +38,7 @@ def make_service_request(
     sr.approved_at = None
     sr.rejected_at = None
     sr.completed_at = None
+    sr.catalog_item_id = None
     sr.rejection_reason = None
     sr.created_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
     sr.updated_at = datetime(2026, 1, 1, tzinfo=timezone.utc)

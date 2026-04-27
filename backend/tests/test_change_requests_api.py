@@ -51,6 +51,7 @@ def make_change_request(
     cr.completed_at = None
     cr.rejection_reason = None
     cr.rollback_plan = None
+    cr.schedule = None
     cr.created_at = datetime(2026, 4, 27, tzinfo=timezone.utc)
     cr.updated_at = datetime(2026, 4, 27, tzinfo=timezone.utc)
     cr.status_logs = []
