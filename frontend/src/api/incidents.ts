@@ -3,13 +3,16 @@ import type { PaginatedResponse } from '@/types'
 import type {
   AssignRequest,
   CreateIncidentRequest,
+  CreateSLAPolicyRequest,
   Incident,
   IncidentDetail,
   IncidentPriority,
   IncidentStatus,
+  SLAPolicy,
   SLAStatus,
   TransitionRequest,
   UpdateIncidentRequest,
+  UpdateSLAPolicyRequest,
 } from '@/types/incident'
 
 export interface ListIncidentsParams {
@@ -44,4 +47,21 @@ export const incidentsApi = {
 
   getAllowedTransitions: (id: string) =>
     client.get<IncidentStatus[]>(`/incidents/${id}/transitions`).then((r) => r.data),
+}
+
+export const slaPoliciesApi = {
+  list: () =>
+    client.get<SLAPolicy[]>('/sla-policies').then((r) => r.data),
+
+  get: (priority: IncidentPriority) =>
+    client.get<SLAPolicy>(`/sla-policies/${priority}`).then((r) => r.data),
+
+  create: (data: CreateSLAPolicyRequest) =>
+    client.post<SLAPolicy>('/sla-policies', data).then((r) => r.data),
+
+  update: (priority: IncidentPriority, data: UpdateSLAPolicyRequest) =>
+    client.put<SLAPolicy>(`/sla-policies/${priority}`, data).then((r) => r.data),
+
+  delete: (priority: IncidentPriority) =>
+    client.delete(`/sla-policies/${priority}`).then((r) => r.data),
 }

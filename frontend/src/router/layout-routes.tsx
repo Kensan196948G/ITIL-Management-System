@@ -14,6 +14,7 @@ import { ChangeRequestDetailPage } from '@/pages/change-requests/detail'
 import { ApprovalsPage } from '@/pages/approvals'
 import { AdminUsersPage } from '@/pages/admin/users'
 import { AuditLogsPage } from '@/pages/admin/audit-logs'
+import { AdminSLAPoliciesPage } from '@/pages/admin/sla-policies'
 import { ProfilePage } from '@/pages/profile'
 import { NotificationsPage } from '@/pages/notifications'
 
@@ -45,6 +46,7 @@ export function LayoutRoutes() {
           <Route path="/approvals/*" element={<ApprovalsPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+          <Route path="/admin/sla-policies" element={<AdminSLAPoliciesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
         </Routes>

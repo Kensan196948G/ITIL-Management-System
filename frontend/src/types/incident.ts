@@ -112,3 +112,26 @@ export const PRIORITY_COLORS: Record<IncidentPriority, string> = {
   p3_medium: 'bg-yellow-100 text-yellow-800',
   p4_low: 'bg-green-100 text-green-800',
 }
+
+export interface SLAPolicy {
+  id: string
+  priority: IncidentPriority
+  response_time_minutes: number
+  resolution_time_minutes: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateSLAPolicyRequest {
+  priority: IncidentPriority
+  response_time_minutes: number
+  resolution_time_minutes: number
+  is_active?: boolean
+}
+
+export interface UpdateSLAPolicyRequest {
+  response_time_minutes?: number
+  resolution_time_minutes?: number
+  is_active?: boolean
+}

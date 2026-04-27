@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { incidentsApi, type ListIncidentsParams } from '@/api/incidents'
+import { incidentsApi, slaPoliciesApi, type ListIncidentsParams } from '@/api/incidents'
 import type {
   AssignRequest,
   CreateIncidentRequest,
+  CreateSLAPolicyRequest,
+  IncidentPriority,
   TransitionRequest,
   UpdateIncidentRequest,
+  UpdateSLAPolicyRequest,
 } from '@/types/incident'
 
 const QUERY_KEYS = {
@@ -12,6 +15,8 @@ const QUERY_KEYS = {
   detail: (id: string) => ['incidents', id] as const,
   sla: (id: string) => ['incidents', id, 'sla'] as const,
   transitions: (id: string) => ['incidents', id, 'transitions'] as const,
+  slaPolicies: ['sla-policies'] as const,
+  slaPolicy: (priority: IncidentPriority) => ['sla-policies', priority] as const,
 }
 
 export function useIncidents(params?: ListIncidentsParams) {
@@ -84,6 +89,44 @@ export function useAssignIncident(id: string) {
     mutationFn: (data: AssignRequest) => incidentsApi.assign(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['incidents', id] })
+    },
+  })
+}
+
+export function useSLAPolicies() {
+  return useQuery({
+    queryKey: QUERY_KEYS.slaPolicies,
+    queryFn: () => slaPoliciesApi.list(),
+  })
+}
+
+export function useCreateSLAPolicy() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateSLAPolicyRequest) => slaPoliciesApi.create(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.slaPolicies })
+    },
+  })
+}
+
+export function useUpdateSLAPolicy() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ priority, data }: { priority: IncidentPriority; data: UpdateSLAPolicyRequest }) =>
+      slaPoliciesApi.update(priority, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.slaPolicies })
+    },
+  })
+}
+
+export function useDeleteSLAPolicy() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (priority: IncidentPriority) => slaPoliciesApi.delete(priority),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.slaPolicies })
     },
   })
 }

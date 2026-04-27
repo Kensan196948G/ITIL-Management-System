@@ -68,3 +68,39 @@ class IncidentResponse(BaseModel):
 
 class IncidentDetailResponse(IncidentResponse):
     status_logs: list[StatusLogResponse] = []
+
+
+# ---- SLA Policy schemas ----
+
+class SLAPolicyCreate(BaseModel):
+    priority: IncidentPriority
+    response_time_minutes: int = Field(..., ge=1)
+    resolution_time_minutes: int = Field(..., ge=1)
+    is_active: bool = True
+
+
+class SLAPolicyUpdate(BaseModel):
+    response_time_minutes: Optional[int] = Field(None, ge=1)
+    resolution_time_minutes: Optional[int] = Field(None, ge=1)
+    is_active: Optional[bool] = None
+
+
+class SLAPolicyResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    priority: IncidentPriority
+    response_time_minutes: int
+    resolution_time_minutes: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class IncidentSLAStatus(BaseModel):
+    incident_id: uuid.UUID
+    sla_due_at: Optional[datetime]
+    is_overdue: bool
+    remaining_minutes: Optional[int]
+    priority: IncidentPriority
+    status: IncidentStatus

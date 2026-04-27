@@ -9,6 +9,7 @@ import {
   Users,
   ScrollText,
   Bell,
+  Clock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth-store'
@@ -26,6 +27,7 @@ const navItems = [
 const adminNavItems = [
   { path: '/admin/users', label: 'ユーザー管理', icon: Users },
   { path: '/admin/audit-logs', label: '監査ログ', icon: ScrollText },
+  { path: '/admin/sla-policies', label: 'SLAポリシー', icon: Clock },
 ]
 
 export function Sidebar() {
