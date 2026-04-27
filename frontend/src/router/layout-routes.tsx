@@ -1,8 +1,13 @@
 import { Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/app-layout'
 import { ProtectedRoute } from '@/components/auth/protected-route'
+import { IncidentListPage } from '@/pages/incidents/list'
+import { CreateIncidentPage } from '@/pages/incidents/create'
+import { IncidentDetailPage } from '@/pages/incidents/detail'
+import { ServiceRequestListPage } from '@/pages/service-requests/list'
+import { CreateServiceRequestPage } from '@/pages/service-requests/create'
+import { ServiceRequestDetailPage } from '@/pages/service-requests/detail'
 
-// Stub page component for pages not yet implemented
 function StubPage({ title }: { title: string }) {
   return (
     <div className="rounded-lg border bg-card p-6">
@@ -18,8 +23,12 @@ export function LayoutRoutes() {
       <AppLayout>
         <Routes>
           <Route path="/" element={<StubPage title="ダッシュボード" />} />
-          <Route path="/incidents/*" element={<StubPage title="インシデント管理" />} />
-          <Route path="/service-requests/*" element={<StubPage title="サービスリクエスト" />} />
+          <Route path="/incidents" element={<IncidentListPage />} />
+          <Route path="/incidents/new" element={<CreateIncidentPage />} />
+          <Route path="/incidents/:id" element={<IncidentDetailPage />} />
+          <Route path="/service-requests" element={<ServiceRequestListPage />} />
+          <Route path="/service-requests/new" element={<CreateServiceRequestPage />} />
+          <Route path="/service-requests/:id" element={<ServiceRequestDetailPage />} />
           <Route path="/service-catalog/*" element={<StubPage title="サービスカタログ" />} />
           <Route path="/change-requests/*" element={<StubPage title="変更管理" />} />
           <Route path="/approvals/*" element={<StubPage title="承認キュー" />} />
