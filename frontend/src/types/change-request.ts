@@ -146,3 +146,52 @@ export const TYPE_COLORS: Record<ChangeRequestType, string> = {
   normal: 'bg-gray-100 text-gray-700',
   emergency: 'bg-orange-100 text-orange-700',
 }
+
+export type CABVoteDecision = 'approve' | 'reject' | 'abstain'
+
+export interface CABVote {
+  id: string
+  change_request_id: string
+  voter_id: string
+  decision: CABVoteDecision
+  comment: string | null
+  voted_at: string
+}
+
+export interface CABVoteCreate {
+  decision: CABVoteDecision
+  comment?: string | null
+}
+
+export const CAB_VOTE_LABELS: Record<CABVoteDecision, string> = {
+  approve: '承認',
+  reject: '却下',
+  abstain: '棄権',
+}
+
+export const CAB_VOTE_COLORS: Record<CABVoteDecision, string> = {
+  approve: 'bg-green-100 text-green-800',
+  reject: 'bg-red-100 text-red-800',
+  abstain: 'bg-gray-100 text-gray-600',
+}
+
+export interface ChangeSchedule {
+  id: string
+  change_request_id: string
+  scheduled_start: string
+  scheduled_end: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ChangeScheduleCreate {
+  scheduled_start: string
+  scheduled_end: string
+}
+
+export interface ChangeScheduleCalendarItem {
+  change_request_id: string
+  title: string
+  scheduled_start: string
+  scheduled_end: string
+}

@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { changeRequestsApi, type ListChangeRequestsParams } from '@/api/change-requests'
+import {
+  cabVotesApi,
+  changeRequestsApi,
+  changeScheduleApi,
+  type ListChangeRequestsParams,
+} from '@/api/change-requests'
 import type {
   ApproveChangeRequestRequest,
+  CABVoteCreate,
+  ChangeScheduleCreate,
   CreateChangeRequestRequest,
   RejectChangeRequestRequest,
   TransitionChangeRequestRequest,
@@ -12,6 +19,9 @@ const QUERY_KEYS = {
   list: (params?: ListChangeRequestsParams) => ['change-requests', params] as const,
   detail: (id: string) => ['change-requests', id] as const,
   transitions: (id: string) => ['change-requests', id, 'transitions'] as const,
+  cabVotes: (id: string) => ['change-requests', id, 'cab-votes'] as const,
+  schedule: (id: string) => ['change-requests', id, 'schedule'] as const,
+  calendar: (from?: string, to?: string) => ['change-requests', 'calendar', from, to] as const,
 }
 
 export function useChangeRequests(params?: ListChangeRequestsParams) {
@@ -89,5 +99,59 @@ export function useTransitionChangeRequest(id: string) {
       qc.invalidateQueries({ queryKey: ['change-requests', id] })
       qc.invalidateQueries({ queryKey: ['change-requests'] })
     },
+  })
+}
+
+export function useCABVotes(changeRequestId: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.cabVotes(changeRequestId),
+    queryFn: () => cabVotesApi.list(changeRequestId),
+    enabled: !!changeRequestId,
+  })
+}
+
+export function useCastCABVote(changeRequestId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CABVoteCreate) => cabVotesApi.cast(changeRequestId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.cabVotes(changeRequestId) })
+    },
+  })
+}
+
+export function useChangeSchedule(changeRequestId: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.schedule(changeRequestId),
+    queryFn: () => changeScheduleApi.get(changeRequestId),
+    enabled: !!changeRequestId,
+    retry: false,
+  })
+}
+
+export function useCreateChangeSchedule(changeRequestId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: ChangeScheduleCreate) => changeScheduleApi.create(changeRequestId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.schedule(changeRequestId) })
+    },
+  })
+}
+
+export function useUpdateChangeSchedule(changeRequestId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: ChangeScheduleCreate) => changeScheduleApi.update(changeRequestId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEYS.schedule(changeRequestId) })
+    },
+  })
+}
+
+export function useChangeScheduleCalendar(from_date?: string, to_date?: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.calendar(from_date, to_date),
+    queryFn: () => changeScheduleApi.calendar(from_date, to_date),
   })
 }

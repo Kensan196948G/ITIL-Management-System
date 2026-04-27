@@ -6,8 +6,15 @@ import {
   useApproveChangeRequest,
   useRejectChangeRequest,
   useTransitionChangeRequest,
+  useCABVotes,
+  useCastCABVote,
+  useChangeSchedule,
+  useCreateChangeSchedule,
+  useUpdateChangeSchedule,
 } from '@/hooks/use-change-requests'
 import {
+  CAB_VOTE_COLORS,
+  CAB_VOTE_LABELS,
   PRIORITY_LABELS,
   RISK_COLORS,
   RISK_LABELS,
@@ -15,6 +22,7 @@ import {
   STATUS_LABELS,
   TYPE_COLORS,
   TYPE_LABELS,
+  type CABVoteDecision,
   type ChangeRequestStatus,
 } from '@/types/change-request'
 
@@ -159,6 +167,226 @@ function TransitionPanel({
         placeholder="コメント（任意）"
         className="w-full rounded border px-2 py-1 text-sm"
       />
+    </div>
+  )
+}
+
+function CABVotesPanel({ changeRequestId }: { changeRequestId: string }) {
+  const { data: votes = [], isLoading } = useCABVotes(changeRequestId)
+  const { mutateAsync, isPending } = useCastCABVote(changeRequestId)
+  const [decision, setDecision] = useState<CABVoteDecision>('approve')
+  const [comment, setComment] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  const tally = votes.reduce(
+    (acc, v) => {
+      acc[v.decision] = (acc[v.decision] ?? 0) + 1
+      return acc
+    },
+    {} as Record<CABVoteDecision, number>,
+  )
+
+  const handleVote = async () => {
+    setError(null)
+    try {
+      await mutateAsync({ decision, comment: comment || undefined })
+      setComment('')
+    } catch {
+      setError('投票に失敗しました')
+    }
+  }
+
+  return (
+    <div className="rounded-lg border bg-card p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold">CAB投票</h2>
+        {votes.length > 0 && (
+          <div className="flex gap-2 text-xs">
+            {(['approve', 'reject', 'abstain'] as CABVoteDecision[]).map((d) =>
+              (tally[d] ?? 0) > 0 ? (
+                <span
+                  key={d}
+                  className={`rounded-full px-2 py-0.5 font-medium ${CAB_VOTE_COLORS[d]}`}
+                >
+                  {CAB_VOTE_LABELS[d]}: {tally[d]}
+                </span>
+              ) : null,
+            )}
+          </div>
+        )}
+      </div>
+
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">読み込み中...</p>
+      ) : votes.length === 0 ? (
+        <p className="text-sm text-muted-foreground">まだ投票はありません</p>
+      ) : (
+        <ul className="space-y-1">
+          {votes.map((v) => (
+            <li key={v.id} className="flex items-center gap-2 text-sm">
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${CAB_VOTE_COLORS[v.decision]}`}
+              >
+                {CAB_VOTE_LABELS[v.decision]}
+              </span>
+              <span className="font-mono text-xs text-muted-foreground">
+                {v.voter_id.slice(0, 8)}...
+              </span>
+              {v.comment && (
+                <span className="text-muted-foreground">— {v.comment}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {error && <div className="rounded bg-red-50 p-2 text-xs text-red-700">{error}</div>}
+
+      <div className="border-t pt-3 space-y-2">
+        <p className="text-xs font-medium text-muted-foreground">投票する</p>
+        <div className="flex gap-2 flex-wrap">
+          {(['approve', 'reject', 'abstain'] as CABVoteDecision[]).map((d) => (
+            <label key={d} className="flex items-center gap-1 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="cab-decision"
+                value={d}
+                checked={decision === d}
+                onChange={() => setDecision(d)}
+              />
+              {CAB_VOTE_LABELS[d]}
+            </label>
+          ))}
+        </div>
+        <input
+          type="text"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="コメント（任意）"
+          className="w-full rounded border px-2 py-1 text-sm"
+        />
+        <button
+          onClick={handleVote}
+          disabled={isPending}
+          className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        >
+          {isPending ? '投票中...' : '投票する'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function ChangeSchedulePanel({ changeRequestId }: { changeRequestId: string }) {
+  const { data: schedule, isError } = useChangeSchedule(changeRequestId)
+  const { mutateAsync: createSchedule, isPending: isCreating } = useCreateChangeSchedule(changeRequestId)
+  const { mutateAsync: updateSchedule, isPending: isUpdating } = useUpdateChangeSchedule(changeRequestId)
+  const [start, setStart] = useState('')
+  const [end, setEnd] = useState('')
+  const [editMode, setEditMode] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const isPending = isCreating || isUpdating
+  const hasSchedule = !!schedule && !isError
+
+  const handleSave = async () => {
+    if (!start || !end) {
+      setError('開始日時と終了日時を入力してください')
+      return
+    }
+    setError(null)
+    try {
+      if (hasSchedule) {
+        await updateSchedule({ scheduled_start: start, scheduled_end: end })
+      } else {
+        await createSchedule({ scheduled_start: start, scheduled_end: end })
+      }
+      setEditMode(false)
+    } catch {
+      setError('スケジュールの保存に失敗しました')
+    }
+  }
+
+  const handleEdit = () => {
+    if (hasSchedule) {
+      setStart(schedule.scheduled_start.slice(0, 16))
+      setEnd(schedule.scheduled_end.slice(0, 16))
+    } else {
+      setStart('')
+      setEnd('')
+    }
+    setEditMode(true)
+  }
+
+  return (
+    <div className="rounded-lg border bg-card p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold">変更スケジュール</h2>
+        {!editMode && (
+          <button
+            onClick={handleEdit}
+            className="text-xs text-primary hover:underline"
+          >
+            {hasSchedule ? '編集' : '+ 設定'}
+          </button>
+        )}
+      </div>
+
+      {!editMode && hasSchedule && (
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span className="text-muted-foreground">開始: </span>
+            {new Date(schedule.scheduled_start).toLocaleString('ja-JP')}
+          </div>
+          <div>
+            <span className="text-muted-foreground">終了: </span>
+            {new Date(schedule.scheduled_end).toLocaleString('ja-JP')}
+          </div>
+        </div>
+      )}
+
+      {!editMode && !hasSchedule && (
+        <p className="text-sm text-muted-foreground">スケジュール未設定</p>
+      )}
+
+      {editMode && (
+        <div className="space-y-2">
+          {error && <div className="rounded bg-red-50 p-2 text-xs text-red-700">{error}</div>}
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">開始日時</label>
+            <input
+              type="datetime-local"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              className="w-full rounded border px-2 py-1 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">終了日時</label>
+            <input
+              type="datetime-local"
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              className="w-full rounded border px-2 py-1 text-sm"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              disabled={isPending}
+              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              {isPending ? '保存中...' : '保存'}
+            </button>
+            <button
+              onClick={() => setEditMode(false)}
+              className="rounded-md border px-3 py-1.5 text-sm hover:bg-muted"
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -316,6 +544,12 @@ export function ChangeRequestDetailPage() {
           <TransitionPanel id={cr.id} allowedTransitions={transitions} />
         </div>
       )}
+
+      {/* CAB Votes */}
+      <CABVotesPanel changeRequestId={cr.id} />
+
+      {/* Change Schedule */}
+      <ChangeSchedulePanel changeRequestId={cr.id} />
 
       {/* Status history */}
       {cr.status_logs.length > 0 && (

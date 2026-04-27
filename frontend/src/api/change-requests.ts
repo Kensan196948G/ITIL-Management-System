@@ -2,12 +2,17 @@ import { client } from './client'
 import type { PaginatedResponse } from '@/types'
 import type {
   ApproveChangeRequestRequest,
+  CABVote,
+  CABVoteCreate,
   ChangeRequest,
   ChangeRequestDetail,
   ChangeRequestPriority,
   ChangeRequestRisk,
   ChangeRequestStatus,
   ChangeRequestType,
+  ChangeSchedule,
+  ChangeScheduleCalendarItem,
+  ChangeScheduleCreate,
   CreateChangeRequestRequest,
   RejectChangeRequestRequest,
   TransitionChangeRequestRequest,
@@ -57,5 +62,37 @@ export const changeRequestsApi = {
   getAllowedTransitions: (id: string) =>
     client
       .get<ChangeRequestStatus[]>(`/change-requests/${id}/transitions`)
+      .then((r) => r.data),
+}
+
+export const cabVotesApi = {
+  list: (changeRequestId: string) =>
+    client
+      .get<CABVote[]>(`/change-requests/${changeRequestId}/cab-votes`)
+      .then((r) => r.data),
+  cast: (changeRequestId: string, data: CABVoteCreate) =>
+    client
+      .post<CABVote>(`/change-requests/${changeRequestId}/cab-votes`, data)
+      .then((r) => r.data),
+}
+
+export const changeScheduleApi = {
+  get: (changeRequestId: string) =>
+    client
+      .get<ChangeSchedule>(`/change-requests/${changeRequestId}/schedule`)
+      .then((r) => r.data),
+  create: (changeRequestId: string, data: ChangeScheduleCreate) =>
+    client
+      .post<ChangeSchedule>(`/change-requests/${changeRequestId}/schedule`, data)
+      .then((r) => r.data),
+  update: (changeRequestId: string, data: ChangeScheduleCreate) =>
+    client
+      .put<ChangeSchedule>(`/change-requests/${changeRequestId}/schedule`, data)
+      .then((r) => r.data),
+  calendar: (from_date?: string, to_date?: string) =>
+    client
+      .get<ChangeScheduleCalendarItem[]>('/change-requests/schedules/calendar', {
+        params: { from_date, to_date },
+      })
       .then((r) => r.data),
 }
