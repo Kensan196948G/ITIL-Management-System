@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { User, LogOut, ChevronDown } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Bell, User, LogOut, ChevronDown } from 'lucide-react'
 import { useAuthStore } from '@/store/auth-store'
+import { useNotifications } from '@/hooks/use-notifications'
 import { cn } from '@/lib/utils'
 
 export function Header() {
   const { user, clearAuth } = useAuthStore()
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const { data: notifData } = useNotifications({ unread_only: true, limit: 1 })
+  const unreadCount = notifData?.unread_count ?? 0
 
   const handleLogout = () => {
     clearAuth()
@@ -24,7 +27,20 @@ export function Header() {
         </h1>
       </div>
 
-      {/* Right: User dropdown */}
+      {/* Right: Notification bell + User dropdown */}
+      <div className="flex items-center gap-2">
+        <Link
+          to="/notifications"
+          className="relative rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          aria-label="通知"
+        >
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </Link>
       <div className="relative">
         <button
           type="button"
@@ -68,6 +84,7 @@ export function Header() {
             </div>
           </>
         )}
+      </div>
       </div>
     </header>
   )

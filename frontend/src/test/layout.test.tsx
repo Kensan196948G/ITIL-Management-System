@@ -21,7 +21,15 @@ const mockAuthStore = {
 }
 
 vi.mock('@/store/auth-store', () => ({
-  useAuthStore: () => mockAuthStore,
+  useAuthStore: (selector?: (s: typeof mockAuthStore) => unknown) =>
+    selector ? selector(mockAuthStore) : mockAuthStore,
+}))
+
+vi.mock('@/hooks/use-notifications', () => ({
+  useNotifications: () => ({ data: { items: [], unread_count: 0, total: 0 }, isLoading: false, isError: false }),
+  useMarkNotificationsRead: () => ({ mutate: vi.fn(), isPending: false }),
+  useMarkAllNotificationsRead: () => ({ mutate: vi.fn(), isPending: false }),
+  useDeleteNotification: () => ({ mutate: vi.fn(), isPending: false }),
 }))
 
 // ---- Helper ----

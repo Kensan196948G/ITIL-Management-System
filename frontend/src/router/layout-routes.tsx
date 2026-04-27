@@ -15,6 +15,7 @@ import { ApprovalsPage } from '@/pages/approvals'
 import { AdminUsersPage } from '@/pages/admin/users'
 import { AuditLogsPage } from '@/pages/admin/audit-logs'
 import { ProfilePage } from '@/pages/profile'
+import { NotificationsPage } from '@/pages/notifications'
 
 function StubPage({ title }: { title: string }) {
   return (
@@ -45,6 +46,7 @@ export function LayoutRoutes() {
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Routes>
       </AppLayout>
     </ProtectedRoute>

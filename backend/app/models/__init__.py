@@ -3,10 +3,12 @@ from app.models.role import Role
 from app.models.incident import Incident, IncidentStatusLog, SLAPolicy
 from app.models.service_request import ServiceRequest, ServiceRequestStatusLog
 from app.models.change_request import ChangeRequest, ChangeRequestStatusLog
+from app.models.notification import Notification, NotificationCategory, NotificationPriority
 
 __all__ = [
     "User", "Role",
     "Incident", "IncidentStatusLog", "SLAPolicy",
     "ServiceRequest", "ServiceRequestStatusLog",
     "ChangeRequest", "ChangeRequestStatusLog",
+    "Notification", "NotificationCategory", "NotificationPriority",
 ]

@@ -8,6 +8,7 @@ import {
   CheckSquare,
   Users,
   ScrollText,
+  Bell,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth-store'
@@ -19,6 +20,7 @@ const navItems = [
   { path: '/service-catalog', label: 'サービスカタログ', icon: BookOpen },
   { path: '/change-requests', label: '変更管理', icon: GitBranch },
   { path: '/approvals', label: '承認キュー', icon: CheckSquare },
+  { path: '/notifications', label: '通知', icon: Bell },
 ]
 
 const adminNavItems = [
