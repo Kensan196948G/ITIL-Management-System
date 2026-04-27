@@ -25,6 +25,7 @@ def make_mock_db():
     db = AsyncMock()
     empty_result = MagicMock()
     empty_result.all.return_value = []
+    empty_result.scalar_one.return_value = 0
     db.execute = AsyncMock(return_value=empty_result)
     return db
 
@@ -93,4 +94,60 @@ class TestDashboardSummary:
         app.dependency_overrides.clear()
         with TestClient(app) as c:
             resp = c.get("/api/v1/dashboard/summary")
+        assert resp.status_code == 401
+
+
+class TestDashboardKPIs:
+    def test_returns_200(self, client):
+        resp = client.get("/api/v1/dashboard/kpis")
+        assert resp.status_code == 200
+
+    def test_response_has_required_keys(self, client):
+        resp = client.get("/api/v1/dashboard/kpis")
+        data = resp.json()
+        assert "mttr_minutes" in data
+        assert "sla_breach_rate" in data
+        assert "sla_overdue_count" in data
+        assert "change_success_rate" in data
+        assert "change_completed" in data
+        assert "change_failed" in data
+        assert "problem_count" in data
+        assert "known_error_count" in data
+        assert "generated_at" in data
+
+    def test_empty_db_returns_null_mttr(self, client):
+        resp = client.get("/api/v1/dashboard/kpis")
+        data = resp.json()
+        assert data["mttr_minutes"] is None
+
+    def test_empty_db_returns_zero_sla_breach_rate(self, client):
+        resp = client.get("/api/v1/dashboard/kpis")
+        data = resp.json()
+        assert data["sla_breach_rate"] == 0.0
+
+    def test_empty_db_returns_null_change_success_rate(self, client):
+        resp = client.get("/api/v1/dashboard/kpis")
+        data = resp.json()
+        assert data["change_success_rate"] is None
+
+    def test_empty_db_returns_zero_counts(self, client):
+        resp = client.get("/api/v1/dashboard/kpis")
+        data = resp.json()
+        assert data["sla_overdue_count"] == 0
+        assert data["change_completed"] == 0
+        assert data["change_failed"] == 0
+        assert data["problem_count"] == 0
+        assert data["known_error_count"] == 0
+
+    def test_generated_at_is_iso_string(self, client):
+        resp = client.get("/api/v1/dashboard/kpis")
+        data = resp.json()
+        from datetime import datetime
+        dt = datetime.fromisoformat(data["generated_at"])
+        assert dt is not None
+
+    def test_requires_authentication(self):
+        app.dependency_overrides.clear()
+        with TestClient(app) as c:
+            resp = c.get("/api/v1/dashboard/kpis")
         assert resp.status_code == 401

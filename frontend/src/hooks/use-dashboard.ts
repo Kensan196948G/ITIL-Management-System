@@ -8,3 +8,11 @@ export function useDashboardSummary() {
     refetchInterval: 60_000,
   })
 }
+
+export function useDashboardKPIs() {
+  return useQuery({
+    queryKey: ['dashboard', 'kpis'],
+    queryFn: () => dashboardApi.getKPIs(),
+    refetchInterval: 60_000,
+  })
+}

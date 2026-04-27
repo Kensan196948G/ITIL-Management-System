@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useDashboardSummary } from '@/hooks/use-dashboard'
+import { useDashboardSummary, useDashboardKPIs } from '@/hooks/use-dashboard'
 
 function StatCard({
   label,
@@ -16,6 +16,26 @@ function StatCard({
       <span className={`text-2xl font-bold ${colorClass}`}>
         {value ?? '—'}
       </span>
+    </div>
+  )
+}
+
+function KPICard({
+  label,
+  value,
+  unit,
+  colorClass = 'text-gray-900',
+}: {
+  label: string
+  value: number | null | undefined
+  unit?: string
+  colorClass?: string
+}) {
+  const display = value == null ? '—' : `${value}${unit ?? ''}`
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-sm text-gray-500">{label}</span>
+      <span className={`text-2xl font-bold ${colorClass}`}>{display}</span>
     </div>
   )
 }
@@ -47,6 +67,7 @@ function ModuleCard({
 
 export function DashboardPage() {
   const { data, isLoading } = useDashboardSummary()
+  const { data: kpis } = useDashboardKPIs()
 
   if (isLoading) {
     return (
@@ -134,6 +155,44 @@ export function DashboardPage() {
           colorClass="text-purple-600"
         />
       </ModuleCard>
+
+      <div className="rounded-lg border bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">ITIL KPI</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <KPICard
+            label="MTTR（平均解決時間）"
+            value={kpis?.mttr_minutes}
+            unit=" 分"
+            colorClass="text-blue-600"
+          />
+          <KPICard
+            label="SLA 違反率"
+            value={kpis?.sla_breach_rate}
+            unit=" %"
+            colorClass={
+              kpis?.sla_breach_rate != null && kpis.sla_breach_rate > 10
+                ? 'text-red-600'
+                : 'text-green-600'
+            }
+          />
+          <KPICard
+            label="変更成功率"
+            value={kpis?.change_success_rate}
+            unit=" %"
+            colorClass="text-green-600"
+          />
+          <KPICard
+            label="既知エラー数"
+            value={kpis?.known_error_count}
+            colorClass="text-orange-600"
+          />
+        </div>
+        {kpis?.generated_at && (
+          <p className="mt-4 text-xs text-gray-400">
+            最終更新: {new Date(kpis.generated_at).toLocaleString('ja-JP')}
+          </p>
+        )}
+      </div>
     </div>
   )
 }
