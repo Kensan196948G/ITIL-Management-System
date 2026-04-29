@@ -15,24 +15,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute(
-        "CREATE TYPE change_request_status AS ENUM "
-        "('draft', 'submitted', 'under_review', 'approved', 'rejected', "
-        "'in_progress', 'completed', 'failed', 'cancelled')"
-    )
-    op.execute(
-        "CREATE TYPE change_request_type AS ENUM "
-        "('standard', 'normal', 'emergency')"
-    )
-    op.execute(
-        "CREATE TYPE change_request_risk AS ENUM "
-        "('low', 'medium', 'high')"
-    )
-    op.execute(
-        "CREATE TYPE change_request_priority AS ENUM "
-        "('low', 'medium', 'high', 'critical')"
-    )
-
     op.create_table(
         "change_requests",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
@@ -44,7 +26,7 @@ def upgrade() -> None:
                 "draft", "submitted", "under_review", "approved", "rejected",
                 "in_progress", "completed", "failed", "cancelled",
                 name="change_request_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="draft",
@@ -54,7 +36,7 @@ def upgrade() -> None:
             sa.Enum(
                 "standard", "normal", "emergency",
                 name="change_request_type",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="normal",
@@ -64,7 +46,7 @@ def upgrade() -> None:
             sa.Enum(
                 "low", "medium", "high",
                 name="change_request_risk",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="medium",
@@ -74,7 +56,7 @@ def upgrade() -> None:
             sa.Enum(
                 "low", "medium", "high", "critical",
                 name="change_request_priority",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="medium",
@@ -112,7 +94,7 @@ def upgrade() -> None:
                 "draft", "submitted", "under_review", "approved", "rejected",
                 "in_progress", "completed", "failed", "cancelled",
                 name="change_request_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=True,
         ),
@@ -122,7 +104,7 @@ def upgrade() -> None:
                 "draft", "submitted", "under_review", "approved", "rejected",
                 "in_progress", "completed", "failed", "cancelled",
                 name="change_request_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
         ),

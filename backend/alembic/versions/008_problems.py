@@ -15,15 +15,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute(
-        "CREATE TYPE problem_status AS ENUM "
-        "('open', 'under_investigation', 'known_error', 'resolved', 'closed')"
-    )
-    op.execute(
-        "CREATE TYPE problem_priority AS ENUM "
-        "('p1_critical', 'p2_high', 'p3_medium', 'p4_low')"
-    )
-
     op.create_table(
         "problems",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
@@ -32,14 +23,14 @@ def upgrade() -> None:
         sa.Column(
             "status",
             sa.Enum("open", "under_investigation", "known_error", "resolved", "closed",
-                    name="problem_status", create_type=False),
+                    name="problem_status", create_type=True),
             nullable=False,
             server_default="open",
         ),
         sa.Column(
             "priority",
             sa.Enum("p1_critical", "p2_high", "p3_medium", "p4_low",
-                    name="problem_priority", create_type=False),
+                    name="problem_priority", create_type=True),
             nullable=False,
             server_default="p3_medium",
         ),
@@ -68,13 +59,13 @@ def upgrade() -> None:
         sa.Column(
             "from_status",
             sa.Enum("open", "under_investigation", "known_error", "resolved", "closed",
-                    name="problem_status", create_type=False),
+                    name="problem_status", create_type=True),
             nullable=True,
         ),
         sa.Column(
             "to_status",
             sa.Enum("open", "under_investigation", "known_error", "resolved", "closed",
-                    name="problem_status", create_type=False),
+                    name="problem_status", create_type=True),
             nullable=False,
         ),
         sa.Column("changed_by_id", UUID(as_uuid=True), sa.ForeignKey("users.id"), nullable=False),

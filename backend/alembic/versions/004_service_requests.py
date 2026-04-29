@@ -15,15 +15,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute(
-        "CREATE TYPE service_request_status AS ENUM "
-        "('submitted', 'pending_approval', 'approved', 'rejected', 'in_progress', 'completed', 'cancelled')"
-    )
-    op.execute(
-        "CREATE TYPE service_request_category AS ENUM "
-        "('it_equipment', 'software_access', 'network_access', 'user_account', 'other')"
-    )
-
     op.create_table(
         "service_requests",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
@@ -35,7 +26,7 @@ def upgrade() -> None:
                 "submitted", "pending_approval", "approved", "rejected",
                 "in_progress", "completed", "cancelled",
                 name="service_request_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="submitted",
@@ -45,7 +36,7 @@ def upgrade() -> None:
             sa.Enum(
                 "it_equipment", "software_access", "network_access", "user_account", "other",
                 name="service_request_category",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="other",
@@ -78,7 +69,7 @@ def upgrade() -> None:
                 "submitted", "pending_approval", "approved", "rejected",
                 "in_progress", "completed", "cancelled",
                 name="service_request_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=True,
         ),
@@ -88,7 +79,7 @@ def upgrade() -> None:
                 "submitted", "pending_approval", "approved", "rejected",
                 "in_progress", "completed", "cancelled",
                 name="service_request_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
         ),

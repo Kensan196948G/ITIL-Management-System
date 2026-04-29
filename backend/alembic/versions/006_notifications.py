@@ -16,9 +16,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute("CREATE TYPE notification_category AS ENUM ('incident', 'service_request', 'change_request', 'system')")
-    op.execute("CREATE TYPE notification_priority AS ENUM ('low', 'medium', 'high')")
-
     op.create_table(
         "notifications",
         sa.Column("id", UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()")),
@@ -30,7 +27,7 @@ def upgrade() -> None:
             sa.Enum(
                 "incident", "service_request", "change_request", "system",
                 name="notification_category",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
         ),
@@ -39,7 +36,7 @@ def upgrade() -> None:
             sa.Enum(
                 "low", "medium", "high",
                 name="notification_priority",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="medium",

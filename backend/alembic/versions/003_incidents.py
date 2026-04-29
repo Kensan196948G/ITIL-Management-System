@@ -15,15 +15,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute(
-        "CREATE TYPE incident_status AS ENUM "
-        "('new', 'assigned', 'in_progress', 'pending', 'resolved', 'closed', 'cancelled')"
-    )
-    op.execute(
-        "CREATE TYPE incident_priority AS ENUM "
-        "('p1_critical', 'p2_high', 'p3_medium', 'p4_low')"
-    )
-
     op.create_table(
         "incidents",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
@@ -35,7 +26,7 @@ def upgrade() -> None:
                 "new", "assigned", "in_progress", "pending",
                 "resolved", "closed", "cancelled",
                 name="incident_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="new",
@@ -45,7 +36,7 @@ def upgrade() -> None:
             sa.Enum(
                 "p1_critical", "p2_high", "p3_medium", "p4_low",
                 name="incident_priority",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="p3_medium",
@@ -71,7 +62,7 @@ def upgrade() -> None:
                 "new", "assigned", "in_progress", "pending",
                 "resolved", "closed", "cancelled",
                 name="incident_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=True,
         ),
@@ -81,7 +72,7 @@ def upgrade() -> None:
                 "new", "assigned", "in_progress", "pending",
                 "resolved", "closed", "cancelled",
                 name="incident_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
         ),
@@ -98,7 +89,7 @@ def upgrade() -> None:
             sa.Enum(
                 "p1_critical", "p2_high", "p3_medium", "p4_low",
                 name="incident_priority",
-                create_type=False,
+                create_type=True,
             ),
             unique=True,
             nullable=False,
@@ -115,5 +106,5 @@ def downgrade() -> None:
     op.drop_table("sla_policies")
     op.drop_table("incident_status_logs")
     op.drop_table("incidents")
-    op.execute("DROP TYPE incident_priority")
-    op.execute("DROP TYPE incident_status")
+    op.execute("DROP TYPE IF EXISTS incident_priority")
+    op.execute("DROP TYPE IF EXISTS incident_status")
