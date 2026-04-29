@@ -1,25 +1,41 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuthStore } from '@/store/auth-store'
+import { LoginPage } from '@/pages/login'
+import { RegisterPage } from '@/pages/register'
+import { LayoutRoutes } from './layout-routes'
 
-function HomePage() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-foreground mb-4">
-          ITIL Management System
-        </h1>
-        <p className="text-muted-foreground">
-          インシデント管理・サービスリクエスト管理・変更管理システム
-        </p>
-      </div>
-    </div>
-  )
+/** Redirect authenticated users away from auth pages */
+function GuestRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuthStore()
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />
+  }
+  return <>{children}</>
 }
 
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Public routes - no AppLayout */}
+      <Route
+        path="/login"
+        element={
+          <GuestRoute>
+            <LoginPage />
+          </GuestRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <GuestRoute>
+            <RegisterPage />
+          </GuestRoute>
+        }
+      />
+
+      {/* Protected routes - with AppLayout via LayoutRoutes */}
+      <Route path="/*" element={<LayoutRoutes />} />
     </Routes>
   )
 }
