@@ -102,6 +102,64 @@ npm run dev
 | バックエンド API | http://localhost:8000 |
 | API ドキュメント (Swagger) | http://localhost:8000/docs |
 
+### 本番デプロイ構成
+
+本番環境ではリバースプロキシ（nginx等）を使用し、フロントエンドとバックエンドを同一オリジンで提供します。
+
+```
+ユーザー → nginx (:80/443) ─┬─ /          → フロントエンド静的ファイル
+                             └─ /api/v1/* → バックエンド uvicorn (:8000)
+```
+
+#### 環境変数
+
+| 変数 | 説明 | デフォルト値 |
+|---|---|---|
+| `VITE_API_BASE_URL` | フロントエンドAPIベースURL | `/api/v1` |
+| `DATABASE_URL` | PostgreSQL接続文字列 | `postgresql+asyncpg://...` |
+| `SECRET_KEY` | JWT署名用秘密鍵 | (必須) |
+| `CORS_ORIGINS` | 許可するCORSオリジン | `["*"]` |
+
+#### nginx設定例
+
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+
+    root /var/www/itil/frontend/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+#### 本番ビルド
+
+```bash
+# バックエンド
+cd backend
+pip install -r requirements.txt
+alembic upgrade head
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# フロントエンド
+cd frontend
+npm ci
+VITE_API_BASE_URL=/api/v1 npm run build
+# → dist/ をnginxのルートディレクトリに配置
+```
+
 ## テスト
 
 ### バックエンドテスト
