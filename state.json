@@ -29,8 +29,8 @@
     "cooldown_minutes_max": 15,
     "retry_limit_ci": 15,
     "same_root_cause_limit": 3,
-    "current_session_start_at": "2026-04-29T22:00:00+09:00",
-    "last_trigger": "cron",
+    "current_session_start_at": "2026-04-30T00:00:00+09:00",
+    "last_trigger": "manual",
     "last_cron_session_id": "20260429-220000-ITIL-Management-System"
   },
   "automation": {
@@ -51,7 +51,7 @@
       "technical_debt": 40,
       "minor_ux": 20
     },
-    "current_top_reason": "documentation_improvement"
+    "current_top_reason": "none"
   },
   "task_progress": {
     "TASK-001": "completed",
@@ -121,8 +121,8 @@
   "status": {
     "stable": true,
     "blocked": false,
-    "current_phase": "improve",
+    "current_phase": "verify",
     "current_task": null,
-    "last_updated": "2026-04-29T22:15:00+09:00"
+    "last_updated": "2026-04-30T00:24:00+09:00"
   }
 }
