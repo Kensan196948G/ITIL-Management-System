@@ -16,6 +16,10 @@
     "review_blocker_target": 0,
     "security_blocker_target": 0,
     "ci_stability_target": 0.95,
+    "ci_success_rate": 1.0,
+    "test_pass_rate": 1.0,
+    "review_blocker_count": 0,
+    "security_issue_count": 0,
     "tasks_total": 20,
     "tasks_completed": 20
   },
@@ -25,9 +29,9 @@
     "cooldown_minutes_max": 15,
     "retry_limit_ci": 15,
     "same_root_cause_limit": 3,
-    "current_session_start_at": "2026-04-27T18:20:00+09:00",
+    "current_session_start_at": "2026-04-29T22:00:00+09:00",
     "last_trigger": "cron",
-    "last_cron_session_id": "20260427-182000-ITIL-Management-System"
+    "last_cron_session_id": "20260429-220000-ITIL-Management-System"
   },
   "automation": {
     "auto_issue_generation": true,
@@ -47,7 +51,7 @@
       "technical_debt": 40,
       "minor_ux": 20
     },
-    "current_top_reason": "feature_development"
+    "current_top_reason": "documentation_improvement"
   },
   "task_progress": {
     "TASK-001": "completed",
@@ -72,7 +76,10 @@
     "TASK-020": "completed"
   },
   "learning": {
-    "failure_patterns": [],
+    "failure_patterns": [
+      "CI backend: missing email-validator in requirements.txt causes ImportError for EmailStr",
+      "CI frontend: @typescript-eslint/no-explicit-any and unused eslint-disable in sla-policies.test.tsx"
+    ],
     "success_patterns": [
       "TASK-001: FastAPI async stack with mocked tests",
       "TASK-002: ITIL incident management core - backend API + frontend UI + 140 backend tests + 22 frontend tests",
@@ -114,8 +121,8 @@
   "status": {
     "stable": true,
     "blocked": false,
-    "current_phase": "build",
+    "current_phase": "improve",
     "current_task": null,
-    "last_updated": "2026-04-27T21:00:00+09:00"
+    "last_updated": "2026-04-29T22:15:00+09:00"
   }
 }
