@@ -126,6 +126,14 @@ class ChangeRequestService(BaseService[ChangeRequest]):
         db.add(log)
         await db.flush()
         await db.refresh(cr)
+
+        if to_status == ChangeRequestStatus.SUBMITTED and reviewer_id:
+            try:
+                from app.services.notification_service import notify_cr_approval_needed
+                await notify_cr_approval_needed(db, reviewer_id, str(cr.id), cr.title)
+            except Exception:
+                pass
+
         return cr
 
     async def get_multi_filtered(

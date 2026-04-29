@@ -67,6 +67,16 @@ class IncidentService(BaseService[Incident]):
         db.add(log)
         await db.flush()
         await db.refresh(incident)
+
+        if assignee_id:
+            try:
+                from app.services.notification_service import NotificationService
+                await NotificationService(db).notify_incident_assigned(
+                    db, assignee_id, str(incident.id), incident.title
+                )
+            except Exception:
+                pass
+
         return incident
 
     async def transition_status(
@@ -135,6 +145,15 @@ class IncidentService(BaseService[Incident]):
         incident.assignee_id = assignee_id
         await db.flush()
         await db.refresh(incident)
+
+        try:
+            from app.services.notification_service import NotificationService
+            await NotificationService(db).notify_incident_assigned(
+                db, assignee_id, str(incident.id), incident.title
+            )
+        except Exception:
+            pass
+
         return incident
 
     async def get_multi_filtered(

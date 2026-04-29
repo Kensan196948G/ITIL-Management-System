@@ -49,7 +49,7 @@ async def create_sla_policy(
         is_active=body.is_active,
     )
     db.add(policy)
-    await db.commit()
+    await db.flush()
     await db.refresh(policy)
     return policy
 
@@ -84,7 +84,7 @@ async def update_sla_policy(
         raise HTTPException(status_code=404, detail="SLA policy not found")
     for field, value in body.model_dump(exclude_none=True).items():
         setattr(policy, field, value)
-    await db.commit()
+    await db.flush()
     await db.refresh(policy)
     return policy
 
@@ -102,7 +102,7 @@ async def delete_sla_policy(
     if not policy:
         raise HTTPException(status_code=404, detail="SLA policy not found")
     await db.delete(policy)
-    await db.commit()
+    await db.flush()
 
 
 @router.get("/incidents/{incident_id}/sla", response_model=IncidentSLAStatus, tags=["incidents"])
