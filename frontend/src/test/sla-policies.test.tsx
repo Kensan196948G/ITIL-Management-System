@@ -68,7 +68,6 @@ describe('AdminSLAPoliciesPage', () => {
   })
 
   it('hides create button when all priorities are configured', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(useSLAPolicies).mockReturnValueOnce({
       data: [
         { ...mockPolicy, priority: 'p1_critical' as const },
@@ -78,7 +77,7 @@ describe('AdminSLAPoliciesPage', () => {
       ],
       isLoading: false,
       isError: false,
-    } as any)
+    } as ReturnType<typeof useSLAPolicies>)
     renderPage()
     expect(screen.queryByRole('button', { name: /新規作成/ })).not.toBeInTheDocument()
   })
