@@ -20,7 +20,7 @@
     "test_pass_rate": 1.0,
     "review_blocker_count": 0,
     "security_issue_count": 0,
-    "tasks_total": 20,
+    "tasks_total": 25,
     "tasks_completed": 20
   },
   "execution": {
@@ -29,7 +29,7 @@
     "cooldown_minutes_max": 15,
     "retry_limit_ci": 15,
     "same_root_cause_limit": 3,
-    "current_session_start_at": "2026-04-30T00:00:00+09:00",
+    "current_session_start_at": "2026-04-30T00:30:00+09:00",
     "last_trigger": "manual",
     "last_cron_session_id": "20260429-220000-ITIL-Management-System"
   },
@@ -51,7 +51,7 @@
       "technical_debt": 40,
       "minor_ux": 20
     },
-    "current_top_reason": "none"
+    "current_top_reason": "quality_improvement"
   },
   "task_progress": {
     "TASK-001": "completed",
@@ -73,7 +73,12 @@
     "TASK-017": "completed",
     "TASK-018": "completed",
     "TASK-019": "completed",
-    "TASK-020": "completed"
+    "TASK-020": "completed",
+    "TASK-021": "pending",
+    "TASK-022": "pending",
+    "TASK-023": "pending",
+    "TASK-024": "pending",
+    "TASK-025": "pending"
   },
   "learning": {
     "failure_patterns": [
@@ -123,7 +128,7 @@
     "blocked": false,
     "current_phase": "improve",
     "current_task": null,
-    "last_updated": "2026-04-30T00:30:00+09:00"
+    "last_updated": "2026-04-30T00:52:00+09:00"
   },
   "ci_success_rate": 1.0,
   "test_pass_rate": 1.0
