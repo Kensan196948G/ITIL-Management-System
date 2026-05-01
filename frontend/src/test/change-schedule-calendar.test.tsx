@@ -9,11 +9,14 @@ vi.mock('@/hooks/use-change-requests', () => ({
   useChangeScheduleCalendar: () => mockUseChangeScheduleCalendar(),
 }))
 
+const now = new Date()
+const pad = (n: number) => String(n).padStart(2, '0')
+const mockDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-15`
 const MOCK_ITEM = {
   change_request_id: 'cr-0001-0002-0003-0004-0005',
   title: 'DBマイグレーション実施',
-  scheduled_start: '2026-04-15T20:00:00Z',
-  scheduled_end: '2026-04-15T22:00:00Z',
+  scheduled_start: `${mockDate}T20:00:00Z`,
+  scheduled_end: `${mockDate}T22:00:00Z`,
 }
 
 function renderPage() {

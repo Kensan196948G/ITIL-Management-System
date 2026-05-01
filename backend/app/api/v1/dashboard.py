@@ -6,8 +6,8 @@ from sqlalchemy import select, func
 from app.core.database import get_session as get_db
 from app.core.dependencies import get_current_user
 from app.models.user import User
-from app.models.incident import Incident, IncidentStatus, IncidentPriority
-from app.models.service_request import ServiceRequest, ServiceRequestStatus
+from app.models.incident import Incident, IncidentStatus
+from app.models.service_request import ServiceRequest
 from app.models.change_request import ChangeRequest, ChangeRequestStatus
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -130,7 +130,7 @@ async def get_kpis(
 
     # Problem count
     try:
-        from app.models.problem import Problem, ProblemStatus  # noqa: PLC0415
+        from app.models.problem import Problem  # noqa: PLC0415
         problem_q = await db.execute(select(func.count()).select_from(Problem))
         total_problems = problem_q.scalar_one()
         known_error_q = await db.execute(

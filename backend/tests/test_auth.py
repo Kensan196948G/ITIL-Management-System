@@ -7,7 +7,6 @@ import uuid
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.core.security import create_access_token, create_refresh_token, hash_password

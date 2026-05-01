@@ -100,7 +100,7 @@ class TestListNotifications:
             "app.api.v1.notifications.NotificationService.list_for_user",
             new_callable=AsyncMock,
             return_value=mock_result,
-        ) as mock_svc:
+        ):
             resp = client.get("/api/v1/notifications?unread_only=true")
         assert resp.status_code == 200
 

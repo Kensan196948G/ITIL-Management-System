@@ -10,8 +10,8 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    database_url: str = "postgresql+asyncpg://itil_user:itil_password@localhost:5432/itil_db"
-    secret_key: str = "change-this-to-a-random-secret-key-in-production"
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/itil_db"
+    secret_key: str = ""
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
@@ -22,6 +22,13 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> List[str]:
         return json.loads(self.cors_origins)
+
+    def model_post_init(self, __context):
+        if not self.secret_key:
+            raise ValueError(
+                "SECRET_KEY is required. Set it via .env file or environment variable. "
+                "Example: SECRET_KEY=your-secure-random-key"
+            )
 
 
 settings = Settings()

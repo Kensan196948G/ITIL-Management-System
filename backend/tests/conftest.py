@@ -11,6 +11,12 @@ def pytest_configure(config):
     os.environ["DATABASE_URL"] = "postgresql+asyncpg://test:test@localhost:9999/test_db"
 
 
+@pytest.fixture(autouse=True)
+def _disable_rate_limiter():
+    from app.core.rate_limit import set_rate_limit_enabled
+    set_rate_limit_enabled(False)
+
+
 @pytest.fixture
 def app():
     from app.main import app as fastapi_app

@@ -15,12 +15,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # fulfillment_task_status enum
-    op.execute(
-        "CREATE TYPE fulfillment_task_status AS ENUM "
-        "('pending', 'in_progress', 'completed', 'skipped')"
-    )
-
     # service_catalog_items (must be before FK on service_requests)
     op.create_table(
         "service_catalog_items",
@@ -73,7 +67,7 @@ def upgrade() -> None:
             sa.Enum(
                 "pending", "in_progress", "completed", "skipped",
                 name="fulfillment_task_status",
-                create_type=False,
+                create_type=True,
             ),
             nullable=False,
             server_default="pending",
@@ -85,11 +79,6 @@ def upgrade() -> None:
         sa.Column("order", sa.Integer, nullable=False, server_default="0"),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-    )
-
-    # cab_vote_decision enum
-    op.execute(
-        "CREATE TYPE cab_vote_decision AS ENUM ('approve', 'reject', 'abstain')"
     )
 
     # cab_votes
@@ -106,7 +95,7 @@ def upgrade() -> None:
         sa.Column("voter_id", UUID(as_uuid=True), sa.ForeignKey("users.id"), nullable=False),
         sa.Column(
             "decision",
-            sa.Enum("approve", "reject", "abstain", name="cab_vote_decision", create_type=False),
+            sa.Enum("approve", "reject", "abstain", name="cab_vote_decision", create_type=True),
             nullable=False,
         ),
         sa.Column("comment", sa.Text, nullable=True),

@@ -29,7 +29,11 @@ class ChangeRequestService(BaseService[ChangeRequest]):
         result = await db.execute(
             select(ChangeRequest)
             .where(ChangeRequest.id == request_id)
-            .options(selectinload(ChangeRequest.status_logs))
+            .options(
+                selectinload(ChangeRequest.status_logs),
+                selectinload(ChangeRequest.cab_votes),
+                selectinload(ChangeRequest.schedule),
+            )
         )
         return result.scalar_one_or_none()
 
@@ -126,6 +130,14 @@ class ChangeRequestService(BaseService[ChangeRequest]):
         db.add(log)
         await db.flush()
         await db.refresh(cr)
+
+        if to_status == ChangeRequestStatus.SUBMITTED and reviewer_id:
+            try:
+                from app.services.notification_service import notify_cr_approval_needed
+                await notify_cr_approval_needed(db, reviewer_id, str(cr.id), cr.title)
+            except Exception:
+                pass
+
         return cr
 
     async def get_multi_filtered(

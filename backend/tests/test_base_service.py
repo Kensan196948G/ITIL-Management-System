@@ -1,12 +1,8 @@
 """Tests for BaseService CRUD operations, PaginatedResponse, and error handlers."""
 import uuid
-from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID
 
-import pytest
 from fastapi import FastAPI
-from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -260,6 +256,12 @@ class TestPaginatedResponse:
 # ---------------------------------------------------------------------------
 
 
+def _mock_request():
+    request = MagicMock()
+    request.state.request_id = "test-request-id"
+    return request
+
+
 class TestNotFoundError:
     def test_not_found_error_attributes(self):
         err = NotFoundError(resource="Incident", id="abc-123")
@@ -268,18 +270,18 @@ class TestNotFoundError:
 
     async def test_not_found_handler_returns_404(self):
         err = NotFoundError(resource="Incident", id="abc-123")
-        request = MagicMock()
-        response = await not_found_handler(request, err)
+        response = await not_found_handler(_mock_request(), err)
         assert response.status_code == 404
 
     async def test_not_found_handler_returns_correct_body(self):
         import json
         err = NotFoundError(resource="Change", id="xyz-999")
-        request = MagicMock()
-        response = await not_found_handler(request, err)
+        response = await not_found_handler(_mock_request(), err)
         body = json.loads(response.body)
-        assert "Change" in body["detail"]
-        assert "xyz-999" in body["detail"]
+        assert body["error_code"] == "NOT_FOUND"
+        assert "Change" in body["message"]
+        assert "xyz-999" in body["message"]
+        assert body["request_id"] == "test-request-id"
 
 
 class TestConflictError:
@@ -289,33 +291,33 @@ class TestConflictError:
 
     async def test_conflict_handler_returns_409(self):
         err = ConflictError(message="Duplicate entry")
-        request = MagicMock()
-        response = await conflict_handler(request, err)
+        response = await conflict_handler(_mock_request(), err)
         assert response.status_code == 409
 
     async def test_conflict_handler_returns_correct_body(self):
         import json
         err = ConflictError(message="Email already in use")
-        request = MagicMock()
-        response = await conflict_handler(request, err)
+        response = await conflict_handler(_mock_request(), err)
         body = json.loads(response.body)
-        assert body["detail"] == "Email already in use"
+        assert body["error_code"] == "CONFLICT"
+        assert body["message"] == "Email already in use"
+        assert body["request_id"] == "test-request-id"
 
 
 class TestForbiddenError:
     async def test_forbidden_handler_returns_403(self):
         err = ForbiddenError()
-        request = MagicMock()
-        response = await forbidden_handler(request, err)
+        response = await forbidden_handler(_mock_request(), err)
         assert response.status_code == 403
 
     async def test_forbidden_handler_returns_correct_body(self):
         import json
         err = ForbiddenError()
-        request = MagicMock()
-        response = await forbidden_handler(request, err)
+        response = await forbidden_handler(_mock_request(), err)
         body = json.loads(response.body)
-        assert body["detail"] == "Permission denied"
+        assert body["error_code"] == "FORBIDDEN"
+        assert body["message"] == "Permission denied"
+        assert body["request_id"] == "test-request-id"
 
 
 # ---------------------------------------------------------------------------
@@ -324,7 +326,7 @@ class TestForbiddenError:
 
 
 def _build_test_app() -> FastAPI:
-    """Build a minimal FastAPI app with the three error handlers registered."""
+    """Build a minimal FastAPI app with error handlers registered."""
     from app.core.errors import (
         NotFoundError,
         ConflictError,
@@ -361,7 +363,7 @@ class TestErrorHandlerIntegration:
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             response = await client.get("/raise-not-found")
         assert response.status_code == 404
-        assert "Item" in response.json()["detail"]
+        assert "Item" in response.json()["message"]
 
     async def test_conflict_endpoint_returns_409(self):
         test_app = _build_test_app()
@@ -369,7 +371,7 @@ class TestErrorHandlerIntegration:
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             response = await client.get("/raise-conflict")
         assert response.status_code == 409
-        assert response.json()["detail"] == "Already exists"
+        assert response.json()["message"] == "Already exists"
 
     async def test_forbidden_endpoint_returns_403(self):
         test_app = _build_test_app()
@@ -377,4 +379,4 @@ class TestErrorHandlerIntegration:
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             response = await client.get("/raise-forbidden")
         assert response.status_code == 403
-        assert response.json()["detail"] == "Permission denied"
+        assert response.json()["message"] == "Permission denied"

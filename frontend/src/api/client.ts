@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -35,17 +35,36 @@ function processQueue(error: unknown, token: string | null = null) {
   failedQueue = []
 }
 
+function extractErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null) {
+    const err = error as { response?: { data?: { message?: string; detail?: string } }; message?: string }
+    return err.response?.data?.message || err.response?.data?.detail || err.message || '予期せぬエラーが発生しました'
+  }
+  return '予期せぬエラーが発生しました'
+}
+
+export { extractErrorMessage }
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
 
+    if (!error.response) {
+      return Promise.reject(new Error('ネットワーク接続を確認してください'))
+    }
+
+    if (error.response.status === 429) {
+      return Promise.reject(new Error('リクエストが多すぎます。しばらく待ってから再試行してください'))
+    }
+
     // If the error is not 401, or it's the refresh endpoint itself, reject immediately
     if (
       error.response?.status !== 401 ||
       originalRequest._retry ||
-      originalRequest.url?.includes('/api/v1/auth/refresh')
+      originalRequest.url?.includes('/auth/refresh')
     ) {
+      error.userMessage = extractErrorMessage(error)
       return Promise.reject(error)
     }
 
@@ -74,7 +93,7 @@ apiClient.interceptors.response.use(
 
     try {
       const response = await axios.post<{ access_token: string; refresh_token: string; token_type: string }>(
-        `${BASE_URL}/api/v1/auth/refresh`,
+        `${BASE_URL}/auth/refresh`,
         { refresh_token: refreshToken },
         { headers: { 'Content-Type': 'application/json' } }
       )

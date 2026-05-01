@@ -91,7 +91,8 @@ class Problem(Base):
     linked_incidents: Mapped[list["Incident"]] = relationship(
         "Incident",
         secondary="problem_incidents",
-        lazy="selectin",
+        lazy="raise",
+        viewonly=True,
     )
 
 

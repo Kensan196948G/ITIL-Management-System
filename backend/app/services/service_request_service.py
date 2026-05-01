@@ -9,7 +9,6 @@ from sqlalchemy.orm import selectinload
 from app.core.base_service import BaseService
 from app.core.errors import NotFoundError
 from app.models.service_request import (
-    FulfillmentTask,
     ServiceRequest,
     ServiceRequestCategory,
     ServiceRequestStatus,
@@ -121,6 +120,14 @@ class ServiceRequestService(BaseService[ServiceRequest]):
         db.add(log)
         await db.flush()
         await db.refresh(sr)
+
+        if to_status == ServiceRequestStatus.PENDING_APPROVAL and approver_id:
+            try:
+                from app.services.notification_service import notify_sr_approval_needed
+                await notify_sr_approval_needed(db, approver_id, str(sr.id), sr.title)
+            except Exception:
+                pass
+
         return sr
 
     async def get_multi_filtered(

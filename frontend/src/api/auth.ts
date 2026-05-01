@@ -3,14 +3,14 @@ import type { LoginRequest, RegisterRequest, TokenResponse, User } from '@/types
 
 export const authApi = {
   login: (data: LoginRequest) =>
-    apiClient.post<TokenResponse>('/api/v1/auth/login', data),
+    apiClient.post<TokenResponse>('/auth/login', data),
 
   register: (data: RegisterRequest) =>
-    apiClient.post<User>('/api/v1/auth/register', data),
+    apiClient.post<User>('/auth/register', data),
 
   me: () =>
-    apiClient.get<User>('/api/v1/auth/me'),
+    apiClient.get<User>('/auth/me'),
 
   refresh: (refreshToken: string) =>
-    apiClient.post<TokenResponse>('/api/v1/auth/refresh', { refresh_token: refreshToken }),
+    apiClient.post<TokenResponse>('/auth/refresh', { refresh_token: refreshToken }),
 }

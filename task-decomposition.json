@@ -42,6 +42,24 @@
       "types": "frontend/src/types/"
     }
   },
+  "project_constraints": {
+    "duration_months": 6,
+    "start_date": "2026-04-27",
+    "release_deadline": "2026-10-27",
+    "max_session_hours": 5,
+    "schedule": "Linux Cron (月〜土)",
+    "phase_plan": {
+      "month_1_2": "基盤整備・主要機能実装",
+      "month_3_4": "品質向上・テスト整備・パフォーマンス最適化",
+      "month_5": "統合テスト・バグ修正・セキュリティ強化",
+      "month_6": "リリース準備・本番移行"
+    },
+    "shrink_rules": {
+      "remaining_30_days": "Improve縮退、Verify優先",
+      "remaining_14_days": "新機能開発禁止、安定化のみ",
+      "remaining_7_days": "リリース準備のみ"
+    }
+  },
   "tasks": [
     {
       "id": "TASK-001",
@@ -498,7 +516,75 @@
         "Data export downloads CSV of current filtered data",
         "Dashboard auto-refreshes every 60 seconds"
       ]
+    },
+    {
+      "id": "TASK-021",
+      "description": "E2E/統合テスト追加 - PlaywrightまたはCypressで主要ユーザーフロー（ログイン→インシデント作成→サービスリクエスト申請→変更申請承認→ダッシュボード確認）の自動テスト",
+      "files": [],
+      "dependencies": ["TASK-004", "TASK-011", "TASK-015", "TASK-019", "TASK-020"],
+      "estimated_complexity": "L",
+      "acceptance_criteria": [
+        "Playwright/CypressがプロジェクトにセットアップされCIで実行可能",
+        "ログイン→インシデント作成→ステータス遷移のE2Eフローが自動テストでカバーされている",
+        "サービスリクエスト申請→承認→履行完了のE2Eフローが自動テストでカバーされている",
+        "変更申請提出→CABレビュー→承認→スケジュールのE2Eフローが自動テストでカバーされている",
+        "ダッシュボード表示とデータ整合性がE2Eテストで検証されている"
+      ]
+    },
+    {
+      "id": "TASK-022",
+      "description": "エラーハンドリング強化 - 全APIエンドポイントのエラーレスポンス統一、ログ出力標準化、構造化ログ（JSON形式）導入",
+      "files": [],
+      "dependencies": ["TASK-006"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "全APIエンドポイントが統一エラーレスポンス形式（error_code, message, details）を返す",
+        "バックエンドログがJSON構造化形式で出力される",
+        "エラーログにrequest_id, user_id, endpoint, tracebackが含まれる",
+        "フロントエンドのエラーハンドリングが統一トースト/ダイアログ表示に集約されている"
+      ]
+    },
+    {
+      "id": "TASK-023",
+      "description": "パフォーマンス最適化 - N+1クエリ解消（selectinload導入）、キャッシュ層（Redis）検討、フロントエンドCode Splitting",
+      "files": [],
+      "dependencies": ["TASK-006", "TASK-010", "TASK-013"],
+      "estimated_complexity": "L",
+      "acceptance_criteria": [
+        "全リレーションシップにselectinload/joinedloadが適用されN+1クエリが解消されている",
+        "Redisキャッシュ層が導入され、サービスカタログ・ダッシュボード集計がキャッシュされる",
+        "フロントエンドがReact.lazyとSuspenseでコード分割されている",
+        "APIレスポンスタイムが主要エンドポイントで200ms以内（キャッシュヒット時50ms以内）",
+        "SQLAlchemyのechoモードでクエリ数が検証され、N+1が0件である"
+      ]
+    },
+    {
+      "id": "TASK-024",
+      "description": "セキュリティ強化 - レート制限、CSRFトークン、入力サニタイズ共通化、依存パッケージ監査自動化",
+      "files": [],
+      "dependencies": ["TASK-003", "TASK-006"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "レート制限が全認証エンドポイントに適用されている（例: 5回/分/IP）",
+        "CSRFトークンが全状態変更APIリクエストで検証される",
+        "入力サニタイズが共通ミドルウェアでSQLインジェクション/XSS対策として適用されている",
+        "依存パッケージ監査（pip-audit / npm audit）がCIパイプラインに組み込まれている",
+        "CORS設定が許可オリジンのみに制限されている"
+      ]
+    },
+    {
+      "id": "TASK-025",
+      "description": "監視・運用基盤 - ヘルスチェック詳細化、メトリクス収集（Prometheus）、Docker本番構成最適化",
+      "files": [],
+      "dependencies": ["TASK-001"],
+      "estimated_complexity": "M",
+      "acceptance_criteria": [
+        "ヘルスチェックがDB接続・Redis接続・ディスク容量を含む詳細チェックを返す",
+        "Prometheusメトリクスエンドポイント（/metrics）がリクエスト数・レイテンシ・エラー率を公開する",
+        "Docker本番構成がマルチステージビルド・ヘルスチェック・リソース制限を含む",
+        "docker-compose.prod.ymlが本番用に最適化されている（非root実行、ログローテーション）"
+      ]
     }
   ],
-  "current_focus": "TASK-001"
+  "current_focus": "TASK-021"
 }
