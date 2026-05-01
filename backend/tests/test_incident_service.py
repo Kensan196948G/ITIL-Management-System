@@ -147,7 +147,7 @@ class TestIncidentServiceTransitionStatus:
         incident = make_incident(status=IncidentStatus.IN_PROGRESS)
 
         with patch.object(service, "get", new_callable=AsyncMock, return_value=incident):
-            result = await service.transition_status(
+            await service.transition_status(
                 db,
                 incident_id=incident.id,
                 to_status=IncidentStatus.RESOLVED,

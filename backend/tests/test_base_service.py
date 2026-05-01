@@ -1,12 +1,8 @@
 """Tests for BaseService CRUD operations, PaginatedResponse, and error handlers."""
 import uuid
-from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID
 
-import pytest
 from fastapi import FastAPI
-from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID

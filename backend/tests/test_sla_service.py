@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
-import pytest
 
 from app.models.incident import IncidentPriority, IncidentStatus
 from app.services.sla_service import SLAService, _DEFAULT_RESOLUTION_MINUTES

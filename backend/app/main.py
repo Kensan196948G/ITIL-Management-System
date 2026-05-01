@@ -14,6 +14,8 @@ from app.core.errors import (
     forbidden_handler,
 )
 
+from app.api.v1 import api_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,7 +45,6 @@ app.add_exception_handler(NotFoundError, not_found_handler)
 app.add_exception_handler(ConflictError, conflict_handler)
 app.add_exception_handler(ForbiddenError, forbidden_handler)
 
-from app.api.v1 import api_router
 app.include_router(api_router, prefix="/api/v1")
 
 

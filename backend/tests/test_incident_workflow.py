@@ -1,7 +1,7 @@
 import pytest
 from app.models.incident import IncidentStatus
 from app.core.errors import ConflictError
-from app.services.incident_workflow import IncidentWorkflowService, ALLOWED_TRANSITIONS
+from app.services.incident_workflow import IncidentWorkflowService
 
 
 class TestAllowedTransitions:

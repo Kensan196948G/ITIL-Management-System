@@ -9,7 +9,6 @@ from sqlalchemy.orm import selectinload
 from app.core.base_service import BaseService
 from app.core.errors import NotFoundError
 from app.models.service_request import (
-    FulfillmentTask,
     ServiceRequest,
     ServiceRequestCategory,
     ServiceRequestStatus,
