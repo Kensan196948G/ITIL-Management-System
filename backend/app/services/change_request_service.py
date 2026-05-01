@@ -29,7 +29,11 @@ class ChangeRequestService(BaseService[ChangeRequest]):
         result = await db.execute(
             select(ChangeRequest)
             .where(ChangeRequest.id == request_id)
-            .options(selectinload(ChangeRequest.status_logs))
+            .options(
+                selectinload(ChangeRequest.status_logs),
+                selectinload(ChangeRequest.cab_votes),
+                selectinload(ChangeRequest.schedule),
+            )
         )
         return result.scalar_one_or_none()
 
