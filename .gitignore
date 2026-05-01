@@ -40,5 +40,10 @@ coverage.xml
 *.log
 logs/
 
+# Playwright
+playwright-report/
+test-results/
+e2e/.auth/
+
 # Backups
 *.bak
