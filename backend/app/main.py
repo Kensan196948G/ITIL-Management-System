@@ -1,4 +1,5 @@
 import logging
+import os
 import uuid
 import time
 from contextlib import asynccontextmanager
@@ -6,6 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import settings
@@ -88,11 +90,25 @@ app.add_exception_handler(Exception, internal_error_handler)
 
 app.include_router(api_router, prefix="/api/v1")
 
+instrumentator = Instrumentator().instrument(app)
+instrumentator.expose(app, endpoint="/metrics")
+
 
 @app.get("/health")
 async def health_check():
     db_ok = await check_database_connection()
+    disk_usage = os.statvfs("/")
+    disk_free_mb = (disk_usage.f_bavail * disk_usage.f_frsize) // (1024 * 1024)
+    disk_total_mb = (disk_usage.f_blocks * disk_usage.f_frsize) // (1024 * 1024)
+
+    db_status = "connected" if db_ok else "disconnected"
+    overall = "ok" if db_ok and disk_free_mb > 100 else "degraded"
+
     return {
-        "status": "ok" if db_ok else "degraded",
-        "database": "connected" if db_ok else "disconnected",
+        "status": overall,
+        "database": db_status,
+        "disk": {
+            "free_mb": disk_free_mb,
+            "total_mb": disk_total_mb,
+        },
     }
