@@ -1,6 +1,7 @@
 import { Sidebar } from './sidebar'
 import { Header } from './header'
 import { Breadcrumbs } from './breadcrumbs'
+import { ToastContainer } from '@/components/ui/toast'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -17,6 +18,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
       </div>
+      <ToastContainer />
     </div>
   )
 }
