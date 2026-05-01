@@ -22,6 +22,8 @@ from app.core.errors import (
 )
 
 from app.api.v1 import api_router
+from app.core.rate_limit import rate_limit_middleware
+from app.core.security_middleware import InputSanitizeMiddleware
 
 logging.basicConfig(
     level=getattr(logging, settings.log_level.upper(), logging.INFO),
@@ -68,6 +70,8 @@ app = FastAPI(
 )
 
 app.add_middleware(RequestIDMiddleware)
+app.middleware("http")(rate_limit_middleware)
+app.add_middleware(InputSanitizeMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,

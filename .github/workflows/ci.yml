@@ -80,6 +80,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Security audit (npm)
+        run: npm audit --production --audit-level=high || true
+
   e2e-test:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
